@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.Builder;
 import lombok.Data;
 import jakarta.validation.constraints.*;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
 
@@ -11,6 +12,7 @@ import java.time.LocalDate;
  */
 @Data
 @Builder
+@EqualsAndHashCode(of = "id")
 public class User {
 
     private static final String LOGIN_REGEXP = "^[а-яА-яa-zA-Z0-9-_.]{6,12}$";

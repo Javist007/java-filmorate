@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exception.DuplicateException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
+import ru.yandex.practicum.filmorate.service.util.Updater;
 
 import java.util.Collection;
 
@@ -20,6 +21,7 @@ public class UserService {
 
     public static final String DUPLICATE_EMAIL = "Данная электронная почта уже используется";
     public static final String DUPLICATE_LOGIN = "Данный логин уже используется";
+    public static final String USER = "Пользователь";
     private final UserRepository repo;
 
     public Collection<User> findAll() {
@@ -29,11 +31,11 @@ public class UserService {
 
     public User create(User user) {
 
-        if (repo.loginExists(user.getLogin())) {
+        if (repo.loginExists(user)) {
             log.warn("Регистрация с уже используемым логином: {}", user.getLogin());
             throw new DuplicateException(DUPLICATE_LOGIN);
         }
-        if (repo.emailExists(user.getEmail())) {
+        if (repo.emailExists(user)) {
             log.warn("Регистрация с уже используемой почтой: {}", user.getEmail());
             throw new DuplicateException(DUPLICATE_EMAIL);
         }
@@ -60,13 +62,14 @@ public class UserService {
                             "Пользователь ID: = " + newUser.getId() + " не найден");
                 });
 
-        if (newUser.getName() != null) {
-            existing.setName(newUser.getName());
-            log.info("Имя пользователя {} изменено на {}", existing.getLogin(), newUser.getName());
-        }
+        Updater.updateField(log, existing.getId(), USER, "name", newUser.getName(), existing.getName(),
+                existing::setName);
+
+        Updater.updateField(log, existing.getId(), USER, "birthday", newUser.getBirthday(),
+                existing.getBirthday(), existing::setBirthday);
 
         if (newUser.getEmail() != null && !existing.getEmail().equals(newUser.getEmail())) {
-            if (repo.emailExists(newUser.getEmail())) {
+            if (repo.emailExists(newUser)) {
                 throw new DuplicateException(DUPLICATE_EMAIL);
             }
             existing.setEmail(newUser.getEmail());
@@ -74,16 +77,11 @@ public class UserService {
         }
 
         if (newUser.getLogin() != null && !existing.getLogin().equals(newUser.getLogin())) {
-            if (repo.loginExists(newUser.getLogin())) {
+            if (repo.loginExists(newUser)) {
                 throw new DuplicateException(DUPLICATE_LOGIN);
             }
             existing.setLogin(newUser.getLogin());
             log.info("Пользователь {} сменил login на {}", existing.getId(), newUser.getLogin());
-        }
-
-        if (newUser.getBirthday() != null) {
-            existing.setBirthday(newUser.getBirthday());
-            log.info("Пользователь {} сменил birthday на {}", existing.getId(), newUser.getBirthday());
         }
 
         return repo.save(existing);

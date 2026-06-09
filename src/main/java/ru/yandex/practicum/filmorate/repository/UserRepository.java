@@ -7,7 +7,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Репозиторий для пользователей.
+ * Самый простой репозиторий – HashMap + генерация id.
  */
 @Repository
 public class UserRepository {
@@ -35,14 +35,14 @@ public class UserRepository {
         storage.remove(id);
     }
 
-    public boolean loginExists(String login) {
+    public boolean loginExists(User user) {
         return storage.values().stream()
-                .anyMatch(u -> u.getLogin().equals(login));
+                .anyMatch(u -> u.getLogin().equals(user.getLogin()));
     }
 
-    public boolean emailExists(String email) {
+    public boolean emailExists(User user) {
         return storage.values().stream()
-                .anyMatch(u -> u.getEmail().equals(email));
+                .anyMatch(u -> u.getEmail().equals(user.getEmail()));
     }
 }
 

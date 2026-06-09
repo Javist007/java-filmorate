@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.Builder;
 import lombok.Data;
 import jakarta.validation.constraints.*;
+import lombok.EqualsAndHashCode;
 import ru.yandex.practicum.filmorate.validation.MinReleaseDate;
 
 import java.time.LocalDate;
@@ -12,6 +13,7 @@ import java.time.LocalDate;
  */
 @Data
 @Builder
+@EqualsAndHashCode(of = "id")
 public class Film {
     private Long id;
 

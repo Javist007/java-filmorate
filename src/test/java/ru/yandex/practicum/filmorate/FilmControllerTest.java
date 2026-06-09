@@ -42,6 +42,60 @@ class FilmControllerTest {
         }
     }
 
+    @Test
+    void getFilms_ShouldReturnOk() throws Exception {
+        mockMvc.perform(get(BASE_URL)).andExpect(status().isOk());
+    }
+
+    @ParameterizedTest(name = "createFilm_WithInvalidName_{index}")
+    @MethodSource("invalidNameProvider")
+    void createFilm_WithInvalidName_ShouldReturnBadRequest(Film film) throws Exception {
+        performPost(film, HttpStatus.BAD_REQUEST);
+    }
+
+    @ParameterizedTest(name = "createFilm_WithInvalidDuration_{index}")
+    @MethodSource("invalidDurationProvider")
+    void createFilm_WithInvalidDuration_ShouldReturnBadRequest(Film film) throws Exception {
+        performPost(film, HttpStatus.BAD_REQUEST);
+    }
+
+    @ParameterizedTest(name = "createFilm_WithInvalidReleaseDate_{index}")
+    @MethodSource("invalidReleaseDateProvider")
+    void createFilm_WithInvalidReleaseDate_ShouldReturnBadRequest(Film film) throws Exception {
+        performPost(film, HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void createFilm_WithMaxDescriptionLength_ShouldReturnOk() throws Exception {
+        Film film = buildValidFilm();
+
+        film.setDescription("a".repeat(200));
+
+        performPost(film, HttpStatus.OK);
+    }
+
+    @Test
+    void createFilm_WithOverMaxDescriptionLength_ShouldReturnBadRequest() throws Exception {
+        Film film = buildValidFilm();
+
+        film.setDescription("a".repeat(201));
+        performPost(film, HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void createFilm_WithMinimumAcceptReleaseDate_ShouldReturnOk() throws Exception {
+        Film film = buildValidFilm();
+        film.setReleaseDate(LocalDate.of(1895, 12, 28));
+        performPost(film, HttpStatus.OK);
+    }
+
+    @Test
+    void createFilm_WithOneDuration_ShouldReturnOk() throws Exception {
+        Film film = buildValidFilm();
+        film.setDuration(1);
+        performPost(film, HttpStatus.OK);
+    }
+
     /**
      * Универсальный метод для POST‑запроса.
      */
@@ -80,17 +134,6 @@ class FilmControllerTest {
         );
     }
 
-    @Test
-    void getFilms_ShouldReturnOk() throws Exception {
-        mockMvc.perform(get(BASE_URL)).andExpect(status().isOk());
-    }
-
-    @ParameterizedTest(name = "createFilm_WithInvalidName_{index}")
-    @MethodSource("invalidNameProvider")
-    void createFilm_WithInvalidName_ShouldReturnBadRequest(Film film) throws Exception {
-        performPost(film, HttpStatus.BAD_REQUEST);
-    }
-
     static Stream<Film> invalidDurationProvider() {
         return Stream.of(
                 Film.builder()
@@ -108,12 +151,6 @@ class FilmControllerTest {
         );
     }
 
-    @ParameterizedTest(name = "createFilm_WithInvalidDuration_{index}")
-    @MethodSource("invalidDurationProvider")
-    void createFilm_WithInvalidDuration_ShouldReturnBadRequest(Film film) throws Exception {
-        performPost(film, HttpStatus.BAD_REQUEST);
-    }
-
     static Stream<Film> invalidReleaseDateProvider() {
         return Stream.of(
                 Film.builder()
@@ -129,42 +166,5 @@ class FilmControllerTest {
                         .duration(10)
                         .build()
         );
-    }
-
-    @ParameterizedTest(name = "createFilm_WithInvalidReleaseDate_{index}")
-    @MethodSource("invalidReleaseDateProvider")
-    void createFilm_WithInvalidReleaseDate_ShouldReturnBadRequest(Film film) throws Exception {
-        performPost(film, HttpStatus.BAD_REQUEST);
-    }
-
-    @Test
-    void createFilm_WithMaxDescriptionLength_ShouldReturnOk() throws Exception {
-        Film film = buildValidFilm();
-
-        film.setDescription("a".repeat(200));
-
-        performPost(film, HttpStatus.OK);
-    }
-
-    @Test
-    void createFilm_WithOverMaxDescriptionLength_ShouldReturnBadRequest() throws Exception {
-        Film film = buildValidFilm();
-
-        film.setDescription("a".repeat(201));
-        performPost(film, HttpStatus.BAD_REQUEST);
-    }
-
-    @Test
-    void createFilm_WithMinimumAcceptReleaseDate_ShouldReturnOk() throws Exception {
-        Film film = buildValidFilm();
-        film.setReleaseDate(LocalDate.of(1895, 12, 28));
-        performPost(film, HttpStatus.OK);
-    }
-
-    @Test
-    void createFilm_WithOneDuration_ShouldReturnOk() throws Exception {
-        Film film = buildValidFilm();
-        film.setDuration(1);
-        performPost(film, HttpStatus.OK);
     }
 }

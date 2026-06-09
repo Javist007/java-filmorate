@@ -47,68 +47,15 @@ class UserControllerTest {
         }
     }
 
-    private void performPost(Object payload) throws Exception {
-        mockMvc.perform(post(BASE_URL)
-                        .content(mapper.writeValueAsString(payload))
-                        .contentType(JSON))
-                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
-    }
-
-    /**
-     * Правильный пользователь.
-     */
-    private static User buildValidUser() {
-        return User.builder()
-                .email("user@example.com")
-                .login("validLogin")
-                .name("John Doe")
-                .birthday(LocalDate.of(1990, 1, 1))
-                .build();
-    }
-
     @Test
     void getUsers_ShouldReturnOk() throws Exception {
         mockMvc.perform(get(BASE_URL)).andExpect(status().isOk());
-    }
-
-    static Stream<User> invalidEmailProvider() {
-        return Stream.of(
-                User.builder()
-                        .email("invalid-email")
-                        .login("login")
-                        .birthday(LocalDate.now())
-                        .build(),
-                User.builder()
-                        .login("login")
-                        .birthday(LocalDate.now())
-                        .build()
-        );
     }
 
     @ParameterizedTest(name = "createUser_WithInvalidEmail_{index}")
     @MethodSource("invalidEmailProvider")
     void createUser_WithInvalidEmail_ShouldReturnBadRequest(User user) throws Exception {
         performPost(user);
-    }
-
-    static Stream<User> invalidLoginProvider() {
-        return Stream.of(
-                User.builder()
-                        .email("user@example.com")
-                        .login("")
-                        .birthday(LocalDate.now())
-                        .build(),
-                User.builder()
-                        .email("user@example.com")
-                        .login("ab")
-                        .birthday(LocalDate.now())
-                        .build(),
-                User.builder()
-                        .email("user@example.com")
-                        .login("login with space")
-                        .birthday(LocalDate.now())
-                        .build()
-        );
     }
 
     @ParameterizedTest(name = "createUser_WithInvalidLogin_{index}")
@@ -136,6 +83,28 @@ class UserControllerTest {
         performPost(user);
     }
 
+    /**
+     * Универсальный метод для POST‑запроса.
+     */
+    private void performPost(Object payload) throws Exception {
+        mockMvc.perform(post(BASE_URL)
+                        .content(mapper.writeValueAsString(payload))
+                        .contentType(JSON))
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
+    }
+
+    /**
+     * Правильный пользователь.
+     */
+    private static User buildValidUser() {
+        return User.builder()
+                .email("user@example.com")
+                .login("validLogin")
+                .name("John Doe")
+                .birthday(LocalDate.of(1990, 1, 1))
+                .build();
+    }
+
     private void nameInLogin() {
         when(userService.create(ArgumentMatchers.any(User.class))).thenAnswer(invocation -> {
             User u = invocation.getArgument(0);
@@ -144,5 +113,39 @@ class UserControllerTest {
             }
             return u;
         });
+    }
+
+    static Stream<User> invalidEmailProvider() {
+        return Stream.of(
+                User.builder()
+                        .email("invalid-email")
+                        .login("login")
+                        .birthday(LocalDate.now())
+                        .build(),
+                User.builder()
+                        .login("login")
+                        .birthday(LocalDate.now())
+                        .build()
+        );
+    }
+
+    static Stream<User> invalidLoginProvider() {
+        return Stream.of(
+                User.builder()
+                        .email("user@example.com")
+                        .login("")
+                        .birthday(LocalDate.now())
+                        .build(),
+                User.builder()
+                        .email("user@example.com")
+                        .login("ab")
+                        .birthday(LocalDate.now())
+                        .build(),
+                User.builder()
+                        .email("user@example.com")
+                        .login("login with space")
+                        .birthday(LocalDate.now())
+                        .build()
+        );
     }
 }

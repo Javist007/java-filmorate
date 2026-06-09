@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.repository.FilmRepository;
+import ru.yandex.practicum.filmorate.service.util.Updater;
 
 import java.util.Collection;
 
@@ -17,6 +18,7 @@ import java.util.Collection;
 @Slf4j
 public class FilmService {
 
+    public static final String FILM = "Фильм";
     private final FilmRepository repo;
 
     public Collection<Film> findAll() {
@@ -41,27 +43,21 @@ public class FilmService {
                             "Фильм ID: = " + newFilm.getId() + " не найден");
                 });
 
-        if (!existing.getName().equals(newFilm.getName()) && newFilm.getName() != null) {
-            existing.setName(newFilm.getName());
-            log.info("Фильм {} изменил название на {}", newFilm.getId(), newFilm.getName());
-        }
+        Updater.updateField(log,
+                existing.getId(), FILM, "name", newFilm.getName(), existing.getName(),
+                existing::setName);
 
-        if (newFilm.getDescription() != null
-                && !existing.getDescription().equals(newFilm.getDescription())) {
-            existing.setDescription(newFilm.getDescription());
-            log.info("Фильм {} обновил описание", newFilm.getId());
-        }
+        Updater.updateField(log, existing.getId(), FILM, "description", newFilm.getDescription(),
+                existing.getDescription(),
+                existing::setDescription);
 
-        if (!existing.getReleaseDate().equals(newFilm.getReleaseDate())
-                && newFilm.getReleaseDate() != null) {
-            existing.setReleaseDate(newFilm.getReleaseDate());
-            log.info("Фильм {} обновил дату релиза", newFilm.getId());
-        }
+        Updater.updateField(log, existing.getId(), FILM, "releaseDate", newFilm.getReleaseDate(),
+                existing.getReleaseDate(),
+                existing::setReleaseDate);
 
-        if (!existing.getDuration().equals(newFilm.getDuration())) {
-            existing.setDuration(newFilm.getDuration());
-            log.info("Фильм {} обновил продолжительность", newFilm.getId());
-        }
+        Updater.updateField(log, existing.getId(), FILM, "duration", newFilm.getDuration(),
+                existing.getDuration(),
+                existing::setDuration);
 
         return repo.save(existing);
     }
