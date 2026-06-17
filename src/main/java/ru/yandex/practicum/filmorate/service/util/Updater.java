@@ -31,7 +31,7 @@ public final class Updater {
         }
         if (!Objects.equals(oldValue, newValue)) {
             setter.accept(newValue);
-            log.info("{} ID {}: поле '{}' изменено на {}", entityType,
+            log.debug("{} ID {}: поле '{}' изменено на {}", entityType,
                     id, fieldName, newValue);
         }
     }
