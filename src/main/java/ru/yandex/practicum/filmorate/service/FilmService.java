@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.DuplicateException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.repository.film.FilmRepository;
-import ru.yandex.practicum.filmorate.repository.user.UserRepository;
+import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
+import ru.yandex.practicum.filmorate.repository.user.UserStorage;
 import ru.yandex.practicum.filmorate.service.util.Updater;
 
 import java.util.Collection;
@@ -23,8 +23,8 @@ public class FilmService {
 
     public static final String FILM = "Фильм";
 
-    private final FilmRepository filmRepository;
-    private final UserRepository userRepository;
+    private final FilmStorage filmRepository;
+    private final UserStorage userRepository;
 
     public Collection<Film> findAll() {
         log.info("Получаем список всех фильмов");
@@ -86,7 +86,7 @@ public class FilmService {
     }
 
     private void isUserNotFound(Long userId) {
-        if (!userRepository.getStorage().containsKey(userId)) {
+        if (!userRepository.exists(userId)) {
             log.warn("Пользователь с ID {} не существует", userId);
             throw new NotFoundException("Пользователь c ID " + userId + " не существует!");
         }

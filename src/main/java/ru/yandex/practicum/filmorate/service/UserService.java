@@ -6,11 +6,10 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.DuplicateException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.repository.user.UserRepository;
+import ru.yandex.practicum.filmorate.repository.user.UserStorage;
 import ru.yandex.practicum.filmorate.service.util.Updater;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Бизнес‑слой для пользователей.
@@ -24,7 +23,7 @@ public class UserService {
     public static final String DUPLICATE_LOGIN = "Данный логин уже используется";
     public static final String USER = "Пользователь";
 
-    private final UserRepository repository;
+    private final UserStorage repository;
 
     public Collection<User> findAll() {
         log.info("Получаем список всех пользователей");
@@ -92,7 +91,7 @@ public class UserService {
         User user = getById(userId);
         User friend = getById(friendId);
 
-        boolean addedToUser   = user.getFriends().add(friendId);
+        boolean addedToUser = user.getFriends().add(friendId);
         boolean addedToFriend = friend.getFriends().add(userId);
 
         if (addedToUser || addedToFriend) {
@@ -106,7 +105,7 @@ public class UserService {
         User user = getById(userId);
         User friend = getById(friendId);
 
-        boolean removedFromUser   = user.getFriends().remove(friendId);
+        boolean removedFromUser = user.getFriends().remove(friendId);
         boolean removedFromFriend = friend.getFriends().remove(userId);
 
         if (removedFromUser || removedFromFriend) {
@@ -117,11 +116,8 @@ public class UserService {
     }
 
     public List<User> getFriends(Long userId) {
-        User user = getById(userId);
-        return user.getFriends().stream()
-                .map(id -> repository.findById(id)
-                        .orElseThrow(() -> new NotFoundException("Друг не найден: ID=" + id)))
-                .collect(Collectors.toList());
+        Set<Long> friendIds = getById(userId).getFriends();
+        return repository.findAllByIds(friendIds);
     }
 
     public List<User> getCommonFriends(Long userId, Long otherId) {
@@ -131,10 +127,7 @@ public class UserService {
         Set<Long> commonIds = new HashSet<>(u1.getFriends());
         commonIds.retainAll(u2.getFriends());
 
-        return commonIds.stream()
-                .map(id -> repository.findById(id)
-                        .orElseThrow(() -> new NotFoundException("Друг не найден: ID=" + id)))
-                .collect(Collectors.toList());
+        return repository.findAllByIds(commonIds);
     }
 
     public User getById(Long id) {
