@@ -6,13 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.user.UserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserResponse;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.service.mapper.UserMapper;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * REST‑контроллер для пользователей.
@@ -28,30 +25,25 @@ public class UserController {
     @GetMapping
     public Collection<UserResponse> findAll() {
         log.info("GET /users – получение списка всех пользователей");
-        return userService.findAll().stream()
-                .map(UserMapper::toDto)
-                .collect(Collectors.toList());
+        return userService.findAll();
     }
 
     @PostMapping
     public UserResponse create(@Valid @RequestBody UserRequest request) {
         log.info("POST /users – создание пользователя: {}", request.getLogin());
-        User created = userService.create(UserMapper.toEntity(request));
-        return UserMapper.toDto(created);
+        return userService.create(request);
     }
 
     @PutMapping
     public UserResponse update(@Valid @RequestBody UserRequest request) {
         log.info("PUT /users – обновление пользователя ID={}", request.getId());
-        User updated = userService.update(UserMapper.toEntity(request));
-        return UserMapper.toDto(updated);
+        return userService.update(request);
     }
 
     @GetMapping("/{id}")
     public UserResponse getUser(@PathVariable Long id) {
         log.info("GET /users/{} – получение конкретного пользователя", id);
-        User u = userService.findById(id);
-        return UserMapper.toDto(u);
+        return userService.getByIdResponse(id);
     }
 
     @PutMapping("/{userId}/friends/{friendId}")
@@ -69,17 +61,13 @@ public class UserController {
     @GetMapping("/{id}/friends")
     public List<UserResponse> getFriends(@PathVariable Long id) {
         log.info("GET /users/{}/friends – получение списка друзей пользователя", id);
-        return userService.getFriends(id).stream()
-                .map(UserMapper::toDto)
-                .collect(Collectors.toList());
+        return userService.getFriends(id);
     }
 
     @GetMapping("/{userId}/friends/common/{otherId}")
     public List<UserResponse> getCommonFriends(@PathVariable Long userId,
                                                @PathVariable Long otherId) {
         log.info("GET /users/{}/friends/common/{} – поиск общих друзей", userId, otherId);
-        return userService.getCommonFriends(userId, otherId).stream()
-                .map(UserMapper::toDto)
-                .collect(Collectors.toList());
+        return userService.getCommonFriends(userId, otherId);
     }
 }

@@ -3,14 +3,18 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dto.user.UserRequest;
+import ru.yandex.practicum.filmorate.dto.user.UserResponse;
 import ru.yandex.practicum.filmorate.exception.DuplicateException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.friends.FriendStorage;
 import ru.yandex.practicum.filmorate.repository.user.UserStorage;
+import ru.yandex.practicum.filmorate.service.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.service.util.Updater;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Бизнес‑слой для пользователей.
@@ -27,21 +31,20 @@ public class UserService {
     private final UserStorage repository;
     private final FriendStorage friendStorage;
 
-
-    public Collection<User> findAll() {
+    public Collection<UserResponse> findAll() {
         log.info("Получаем список всех пользователей");
-        return repository.findAll();
-    }
-    public User findById(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Пользователь не найден. ID: {}", id);
-                    return new NotFoundException(
-                            "Пользователь ID: = " + id + " не найден");
-                });
+        return repository.findAll().stream()
+                .map(UserMapper::toDto)
+                .collect(Collectors.toList());
     }
 
-    public User create(User user) {
+    public UserResponse getByIdResponse(Long id) {
+        User user = findById(id);
+        return UserMapper.toDto(user);
+    }
+
+    public UserResponse create(UserRequest request) {
+        User user = UserMapper.toEntity(request);
         if (repository.loginExists(user)) {
             log.warn("Регистрация с уже используемым логином: {}", user.getLogin());
             throw new DuplicateException(DUPLICATE_LOGIN);
@@ -57,41 +60,42 @@ public class UserService {
 
         User saved = repository.createUser(user);
         log.info("Пользователь '{}' успешно зарегистрирован. ID {}", user.getLogin(), saved.getId());
-        return saved;
+        return UserMapper.toDto(saved);
     }
 
-    public User update(User newUser) {
-        if (newUser.getId() == null) {
-            log.warn("Отсутствует ID у объекта. Данные: {}", newUser);
+    public UserResponse update(UserRequest request) {
+        if (request.getId() == null) {
+            log.warn("Отсутствует ID у объекта. Данные: {}", request);
             throw new NotFoundException("ID должен быть указан");
         }
-        User existing = findById(newUser.getId());
+        User existing = findById(request.getId());
 
-        Updater.updateField(log, existing.getId(), USER, "name", newUser.getName(),
+        Updater.updateField(log, existing.getId(), USER, "name", request.getName(),
                 existing.getName(), existing::setName);
 
-        Updater.updateField(log, existing.getId(), USER, "birthday", newUser.getBirthday(),
+        Updater.updateField(log, existing.getId(), USER, "birthday", request.getBirthday(),
                 existing.getBirthday(), existing::setBirthday);
 
-        if (newUser.getEmail() != null && !existing.getEmail().equals(newUser.getEmail())) {
-            if (repository.emailExists(newUser)) {
-                log.warn("Пользователь {} пытается сменить email на уже используемый: {}", existing.getLogin(), newUser.getEmail());
+        if (request.getEmail() != null && !existing.getEmail().equals(request.getEmail())) {
+            if (repository.emailExists(UserMapper.toEntity(request))) {
+                log.warn("Пользователь {} пытается сменить email на уже используемый: {}", existing.getLogin(), request.getEmail());
                 throw new DuplicateException(DUPLICATE_EMAIL);
             }
-            existing.setEmail(newUser.getEmail());
-            log.info("Пользователь '{}' сменил email на {}", existing.getLogin(), newUser.getEmail());
+            existing.setEmail(request.getEmail());
+            log.info("Пользователь '{}' сменил email на {}", existing.getLogin(), request.getEmail());
         }
 
-        if (newUser.getLogin() != null && !existing.getLogin().equals(newUser.getLogin())) {
-            if (repository.loginExists(newUser)) {
-                log.warn("Пользователь {} пытается сменить login на уже используемый: {}", existing.getLogin(), newUser.getLogin());
+        if (request.getLogin() != null && !existing.getLogin().equals(request.getLogin())) {
+            if (repository.loginExists(UserMapper.toEntity(request))) {
+                log.warn("Пользователь {} пытается сменить login на уже используемый: {}", existing.getLogin(), request.getLogin());
                 throw new DuplicateException(DUPLICATE_LOGIN);
             }
-            existing.setLogin(newUser.getLogin());
-            log.info("Пользователь '{}' сменил login на {}", existing.getId(), newUser.getLogin());
+            existing.setLogin(request.getLogin());
+            log.info("Пользователь '{}' сменил login на {}", existing.getId(), request.getLogin());
         }
 
-        return repository.updateUser(existing);
+        User updated = repository.updateUser(existing);
+        return UserMapper.toDto(updated);
     }
 
     public void addFriend(Long userId, Long friendId) {
@@ -122,16 +126,28 @@ public class UserService {
         }
     }
 
-    public List<User> getFriends(Long userId) {
+    public List<UserResponse> getFriends(Long userId) {
         findById(userId);
         Set<Long> friendIds = friendStorage.getFriends(userId);
-        return repository.findAllByIds(friendIds);
+        return repository.findAllByIds(friendIds).stream()
+                .map(UserMapper::toDto)
+                .collect(Collectors.toList());
     }
 
-    public List<User> getCommonFriends(Long userId, Long otherId) {
+    public List<UserResponse> getCommonFriends(Long userId, Long otherId) {
         findById(userId);
         findById(otherId);
         Set<Long> commonIds = friendStorage.getCommonFriends(userId, otherId);
-        return repository.findAllByIds(commonIds);
+        return repository.findAllByIds(commonIds).stream()
+                .map(UserMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public User findById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> {
+                    log.error("Пользователь не найден. ID: {}", id);
+                    return new NotFoundException("Пользователь ID: = " + id + " не найден");
+                });
     }
 }
