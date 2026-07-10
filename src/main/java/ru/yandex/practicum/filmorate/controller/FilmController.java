@@ -6,13 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.film.FilmRequest;
 import ru.yandex.practicum.filmorate.dto.film.FilmResponse;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.service.mapper.FilmMapper;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * REST‑контроллер для фильмов.
@@ -28,30 +25,25 @@ public class FilmController {
     @GetMapping
     public Collection<FilmResponse> findAll() {
         log.info("GET /films – получение списка всех фильмов");
-        return filmService.findAll().stream()
-                .map(FilmMapper::toDto)
-                .collect(Collectors.toList());
+        return filmService.findAll();
     }
 
     @PostMapping
     public FilmResponse create(@Valid @RequestBody FilmRequest request) {
         log.info("POST /films – создание фильма: {}", request.getName());
-        Film created = filmService.create(FilmMapper.toEntity(request));
-        return FilmMapper.toDto(created);
+        return filmService.create(request);
     }
 
     @PutMapping
     public FilmResponse update(@Valid @RequestBody FilmRequest request) {
         log.info("PUT /films – обновление фильма ID={}", request.getId());
-        Film updated = filmService.update(FilmMapper.toEntity(request));
-        return FilmMapper.toDto(updated);
+        return filmService.update(request);
     }
 
     @GetMapping("/{id}")
     public FilmResponse getFilm(@PathVariable Long id) {
         log.info("GET /films/{} – получение конкретного фильма", id);
-        Film film = filmService.getById(id);
-        return FilmMapper.toDto(film);
+        return filmService.getByIdResponse(id);
     }
 
     @PutMapping("/{id}/like/{userId}")
@@ -69,8 +61,6 @@ public class FilmController {
     @GetMapping("/popular")
     public List<FilmResponse> getPopular(@RequestParam(required = false, defaultValue = "10") Integer count) {
         log.info("GET /films/popular?count={}", count);
-        return filmService.getPopular(count).stream()
-                .map(FilmMapper::toDto)
-                .collect(Collectors.toList());
+        return filmService.getPopular(count);
     }
 }

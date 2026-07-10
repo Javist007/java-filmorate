@@ -41,9 +41,9 @@ public class UserRepository implements UserStorage {
     }
 
     @Override
-    public void updateUser(User user) {
-        storage.put(user.getId(), user);
+    public User updateUser(User user) {
         log.debug("Пользователь ID {} обновлён", user.getId());
+        return storage.put(user.getId(), user);
     }
 
     @Override

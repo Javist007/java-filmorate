@@ -91,7 +91,7 @@ public class UserService {
             log.info("Пользователь '{}' сменил login на {}", existing.getId(), newUser.getLogin());
         }
 
-        return repository.createUser(existing);
+        return repository.updateUser(existing);
     }
 
     public void addFriend(Long userId, Long friendId) {
