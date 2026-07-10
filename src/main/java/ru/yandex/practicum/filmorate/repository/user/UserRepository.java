@@ -31,7 +31,7 @@ public class UserRepository implements UserStorage {
     }
 
     @Override
-    public User add(User user) {
+    public User createUser(User user) {
         if (user.getId() == null) {
             user.setId(idGenerator.incrementAndGet());
         }
@@ -41,13 +41,13 @@ public class UserRepository implements UserStorage {
     }
 
     @Override
-    public void update(User user) {
+    public void updateUser(User user) {
         storage.put(user.getId(), user);
         log.debug("Пользователь ID {} обновлён", user.getId());
     }
 
     @Override
-    public void delete(Long id) {
+    public void deleteUser(Long id) {
         storage.remove(id);
         log.info("Удалён пользователь с ID {}", id);
     }

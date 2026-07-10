@@ -12,15 +12,15 @@ public interface UserStorage {
 
     Optional<User> findById(Long id);
 
-    User add(User user);
+    User createUser(User user);
 
-    void update(User user);
+    void updateUser(User user);
 
-    void delete(Long id);
+    void deleteUser(Long id);
 
     boolean exists(Long id);
 
-    List<User> findAllByIds(Collection<Long> ids);
+    List<User> findAllByIds(Collection<Long> id);
 
     boolean loginExists(User user);
 

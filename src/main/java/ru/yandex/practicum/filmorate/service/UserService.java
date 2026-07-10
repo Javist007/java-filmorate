@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.DuplicateException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.repository.friends.FriendStorage;
 import ru.yandex.practicum.filmorate.repository.user.UserStorage;
 import ru.yandex.practicum.filmorate.service.util.Updater;
 
@@ -24,10 +25,20 @@ public class UserService {
     public static final String USER = "Пользователь";
 
     private final UserStorage repository;
+    private final FriendStorage friendStorage;
+
 
     public Collection<User> findAll() {
         log.info("Получаем список всех пользователей");
         return repository.findAll();
+    }
+    public User findById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> {
+                    log.error("Пользователь не найден. ID: {}", id);
+                    return new NotFoundException(
+                            "Пользователь ID: = " + id + " не найден");
+                });
     }
 
     public User create(User user) {
@@ -44,7 +55,7 @@ public class UserService {
             user.setName(user.getLogin());
         }
 
-        User saved = repository.add(user);
+        User saved = repository.createUser(user);
         log.info("Пользователь '{}' успешно зарегистрирован. ID {}", user.getLogin(), saved.getId());
         return saved;
     }
@@ -54,7 +65,7 @@ public class UserService {
             log.warn("Отсутствует ID у объекта. Данные: {}", newUser);
             throw new NotFoundException("ID должен быть указан");
         }
-        User existing = getById(newUser.getId());
+        User existing = findById(newUser.getId());
 
         Updater.updateField(log, existing.getId(), USER, "name", newUser.getName(),
                 existing.getName(), existing::setName);
@@ -80,7 +91,7 @@ public class UserService {
             log.info("Пользователь '{}' сменил login на {}", existing.getId(), newUser.getLogin());
         }
 
-        return repository.add(existing);
+        return repository.createUser(existing);
     }
 
     public void addFriend(Long userId, Long friendId) {
@@ -88,54 +99,39 @@ public class UserService {
             log.error("Попытка пользователя подружиться с самим собой. ID: {}", userId);
             throw new NotFoundException("Пользователь не может подружиться сам с собой");
         }
-        User user = getById(userId);
-        User friend = getById(friendId);
+        findById(userId);
+        findById(friendId);
 
-        boolean addedToUser = user.getFriends().add(friendId);
-        boolean addedToFriend = friend.getFriends().add(userId);
+        boolean addedToUser = friendStorage.addFriends(userId, friendId);
+        boolean addedToFriend = friendStorage.addFriends(friendId, userId);
 
         if (addedToUser || addedToFriend) {
             log.info("Пользователь {} теперь друг пользователя {}", userId, friendId);
-            repository.update(user);
-            repository.update(friend);
         }
     }
 
     public void removeFriend(Long userId, Long friendId) {
-        User user = getById(userId);
-        User friend = getById(friendId);
+        findById(userId);
+        findById(friendId);
 
-        boolean removedFromUser = user.getFriends().remove(friendId);
-        boolean removedFromFriend = friend.getFriends().remove(userId);
+        boolean removedFromUser = friendStorage.deleteFriends(userId, friendId);
+        boolean removedFromFriend = friendStorage.deleteFriends(friendId, userId);
 
         if (removedFromUser || removedFromFriend) {
             log.info("Пользователь {} разорвал дружбу с пользователем {}", userId, friendId);
-            repository.update(user);
-            repository.update(friend);
         }
     }
 
     public List<User> getFriends(Long userId) {
-        Set<Long> friendIds = getById(userId).getFriends();
+        findById(userId);
+        Set<Long> friendIds = friendStorage.getFriends(userId);
         return repository.findAllByIds(friendIds);
     }
 
     public List<User> getCommonFriends(Long userId, Long otherId) {
-        User u1 = getById(userId);
-        User u2 = getById(otherId);
-
-        Set<Long> commonIds = new HashSet<>(u1.getFriends());
-        commonIds.retainAll(u2.getFriends());
-
+        findById(userId);
+        findById(otherId);
+        Set<Long> commonIds = friendStorage.getCommonFriends(userId, otherId);
         return repository.findAllByIds(commonIds);
-    }
-
-    public User getById(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Пользователь не найден. ID: {}", id);
-                    return new NotFoundException(
-                            "Пользователь ID: = " + id + " не найден");
-                });
     }
 }

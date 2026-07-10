@@ -50,7 +50,7 @@ public class UserController {
     @GetMapping("/{id}")
     public UserResponse getUser(@PathVariable Long id) {
         log.info("GET /users/{} – получение конкретного пользователя", id);
-        User u = userService.getById(id);
+        User u = userService.findById(id);
         return UserMapper.toDto(u);
     }
 
