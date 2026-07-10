@@ -28,7 +28,6 @@ public class FilmMapper {
             setDescription(entity.getDescription());
             setReleaseDate(entity.getReleaseDate());
             setDuration(entity.getDuration());
-            setLikedBy(entity.getLikedBy());
         }};
     }
 }

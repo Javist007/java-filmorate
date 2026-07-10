@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exception.DuplicateException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
+import ru.yandex.practicum.filmorate.repository.like.LikeStorage;
 import ru.yandex.practicum.filmorate.repository.user.UserStorage;
 import ru.yandex.practicum.filmorate.service.util.Updater;
 
@@ -25,6 +26,7 @@ public class FilmService {
 
     private final FilmStorage filmRepository;
     private final UserStorage userRepository;
+    private final LikeStorage likeStorage;
 
     public Collection<Film> findAll() {
         log.info("Получаем список всех фильмов");
@@ -32,7 +34,7 @@ public class FilmService {
     }
 
     public Film create(Film film) {
-        Film saved = filmRepository.add(film);
+        Film saved = filmRepository.create(film);
         log.info("Добавлен фильм '{}' с ID {}", film.getName(), saved.getId());
         return saved;
     }
@@ -52,23 +54,24 @@ public class FilmService {
         Updater.updateField(log, existing.getId(), FILM, "duration", newFilm.getDuration(),
                 existing.getDuration(), existing::setDuration);
 
-        return filmRepository.add(existing);
+        return filmRepository.update(existing);
     }
 
     public void addLike(Long filmId, Long userId) {
-        Film film = getById(filmId);
+        getById(filmId);
         isUserNotFound(userId);
-        if (film.getLikedBy().contains(userId)) {
-            log.info("Пользователю ID: {} уже понравился этот фильм", userId);
+        if (!likeStorage.addLike(filmId, userId)) {
             throw new DuplicateException("Пользователю уже понравился этот фильм");
         }
-        filmRepository.addLike(filmId, userId);
+        log.debug("Пользователь ID {} удалил лайк фильма ID {}", userId, filmId);
     }
 
     public void removeLike(Long filmId, Long userId) {
+        getById(filmId);
         isUserNotFound(userId);
-        Film film = getById(filmId);
-        filmRepository.removeLike(film.getId(), userId);
+        if (!likeStorage.deleteLike(filmId, userId)) {
+            throw new DuplicateException("Данного лайка не существует");
+        }
     }
 
     public List<Film> getPopular(int count) {
