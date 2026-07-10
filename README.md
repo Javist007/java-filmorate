@@ -1,6 +1,6 @@
 # Схема базы данных Filmorate
 
-![Схема базы данных Filmorate](docs/DB-Schema.svg)
+![Схема базы данных Filmorate](docs/DB-Schema.png)
 
 ## Описание схемы
 
