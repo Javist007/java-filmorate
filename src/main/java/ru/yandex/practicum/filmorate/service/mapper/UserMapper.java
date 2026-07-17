@@ -21,6 +21,7 @@ public class UserMapper {
             setBirthday(request.getBirthday());
         }};
     }
+
     public User toEntity(CreateUserRequest request) {
         return new User() {{
             setEmail(request.getEmail());

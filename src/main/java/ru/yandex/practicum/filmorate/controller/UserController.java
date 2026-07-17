@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,12 @@ public class UserController {
         return userService.findAll();
     }
 
+    @GetMapping("/{id}")
+    public UserResponse getUser(@PathVariable Long id) {
+        log.info("GET /users/{} – получение конкретного пользователя", id);
+        return userService.findById(id);
+    }
+
     @PostMapping
     public UserResponse create(@Valid @RequestBody CreateUserRequest request) {
         log.info("POST /users – создание пользователя: {}", request.getLogin());
@@ -41,10 +48,10 @@ public class UserController {
         return userService.update(request);
     }
 
-    @GetMapping("/{id}")
-    public UserResponse getUser(@PathVariable Long id) {
-        log.info("GET /users/{} – получение конкретного пользователя", id);
-        return userService.getByIdResponse(id);
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable @Positive long id) {
+        log.info("DELETE /users - удаление пользователя ID={}", id);
+        userService.delete(id);
     }
 
     @PutMapping("/{userId}/friends/{friendId}")

@@ -3,9 +3,8 @@ package ru.yandex.practicum.filmorate.dto.film;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import org.hibernate.validator.constraints.Length;
 import ru.yandex.practicum.filmorate.dto.GenreDto;
 import ru.yandex.practicum.filmorate.dto.MpaDto;
 import ru.yandex.practicum.filmorate.validation.MinReleaseDate;
@@ -17,7 +16,6 @@ import java.util.List;
  * Входной DTO для обновления фильма.
  */
 @Data
-@EqualsAndHashCode(of = "id")
 public class UpdateFilmRequest {
     @NotNull(message = "ID должен быть указан")
     private Long id;
@@ -25,7 +23,7 @@ public class UpdateFilmRequest {
     @NotBlank(message = "Название фильма не может быть пустым")
     private String name;
 
-    @Size(max = 200, message = "Максимальная длина описания — 200 символов")
+    @Length(max = 200, message = "Максимальная длина описания — 200 символов")
     private String description;
 
     @NotNull(message = "Дата релиза обязательна")

@@ -18,12 +18,7 @@ public interface UserStorage {
 
     void deleteUser(Long id);
 
-    boolean exists(Long id);
-
     List<User> findAllByIds(Collection<Long> id);
 
-    boolean loginExists(User user);
-
-    boolean emailExists(User user);
 }
 

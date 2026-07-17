@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,12 @@ public class FilmController {
         return filmService.findAll();
     }
 
+    @GetMapping("/{id}")
+    public FilmResponse getFilm(@PathVariable Long id) {
+        log.info("GET /films/{} – получение конкретного фильма ", id);
+        return filmService.findById(id);
+    }
+
     @PostMapping
     public FilmResponse create(@Valid @RequestBody CreateFilmRequest request) {
         log.info("POST /films – создание фильма: {}", request.getName());
@@ -41,10 +48,10 @@ public class FilmController {
         return filmService.update(request);
     }
 
-    @GetMapping("/{id}")
-    public FilmResponse getFilm(@PathVariable Long id) {
-        log.info("GET /films/{} – получение конкретного фильма", id);
-        return filmService.getByIdResponse(id);
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable @Positive long id) {
+        log.info("DELETE /films - удаление фильма ID={}", id);
+        filmService.delete(id);
     }
 
     @PutMapping("/{id}/like/{userId}")

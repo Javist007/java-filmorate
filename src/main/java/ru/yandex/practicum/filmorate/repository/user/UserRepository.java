@@ -53,11 +53,6 @@ public class UserRepository implements UserStorage {
     }
 
     @Override
-    public boolean exists(Long id) {
-        return storage.containsKey(id);
-    }
-
-    @Override
     public List<User> findAllByIds(Collection<Long> ids) {
         List<User> result = new ArrayList<>();
         for (Long id : ids) {
@@ -67,17 +62,5 @@ public class UserRepository implements UserStorage {
             }
         }
         return result;
-    }
-
-    @Override
-    public boolean loginExists(User user) {
-        return storage.values().stream()
-                .anyMatch(u -> u.getLogin().equals(user.getLogin()));
-    }
-
-    @Override
-    public boolean emailExists(User user) {
-        return storage.values().stream()
-                .anyMatch(u -> u.getEmail().equals(user.getEmail()));
     }
 }
