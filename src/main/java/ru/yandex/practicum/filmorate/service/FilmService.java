@@ -1,9 +1,11 @@
 package ru.yandex.practicum.filmorate.service;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dto.film.FilmRequest;
+import ru.yandex.practicum.filmorate.dto.film.CreateFilmRequest;
+import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.dto.film.FilmResponse;
 import ru.yandex.practicum.filmorate.exception.DuplicateException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -44,7 +46,7 @@ public class FilmService {
         return FilmMapper.toDto(film);
     }
 
-    public FilmResponse create(FilmRequest request) {
+    public FilmResponse create(@Valid CreateFilmRequest request) {
         Film saved = FilmMapper.toEntity(request);
         filmRepository.create(saved);
 
@@ -52,7 +54,7 @@ public class FilmService {
         return FilmMapper.toDto(saved);
     }
 
-    public FilmResponse update(FilmRequest request) {
+    public FilmResponse update(UpdateFilmRequest request) {
         if (request.getId() == null) {
             throw new NotFoundException("ID должен быть указан");
         }

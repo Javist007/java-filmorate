@@ -1,23 +1,20 @@
 package ru.yandex.practicum.filmorate.dto.user;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PastOrPresent;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
 
 /**
- * Входной DTO для создания/обновления пользователя.
+ * Входной DTO для обновления пользователя.
  */
 @Data
 @EqualsAndHashCode(of = "id")
-public class UserRequest {
+public class UpdateUserRequest {
 
     private static final String LOGIN_REGEXP = "^[а-яА-яa-zA-Z0-9-_.]{6,12}$";
-
+    @NotNull(message = "ID должен быть указан")
     private Long id;
 
     @NotBlank(message = "Электронная почта не может быть пустой")

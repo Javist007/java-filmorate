@@ -1,9 +1,11 @@
 package ru.yandex.practicum.filmorate.service;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dto.user.UserRequest;
+import ru.yandex.practicum.filmorate.dto.user.CreateUserRequest;
+import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserResponse;
 import ru.yandex.practicum.filmorate.exception.DuplicateException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -43,7 +45,7 @@ public class UserService {
         return UserMapper.toDto(user);
     }
 
-    public UserResponse create(UserRequest request) {
+    public UserResponse create(@Valid CreateUserRequest request) {
         User user = UserMapper.toEntity(request);
         if (repository.loginExists(user)) {
             log.warn("Регистрация с уже используемым логином: {}", user.getLogin());
@@ -63,7 +65,7 @@ public class UserService {
         return UserMapper.toDto(saved);
     }
 
-    public UserResponse update(UserRequest request) {
+    public UserResponse update(UpdateUserRequest request) {
         if (request.getId() == null) {
             log.warn("Отсутствует ID у объекта. Данные: {}", request);
             throw new NotFoundException("ID должен быть указан");
