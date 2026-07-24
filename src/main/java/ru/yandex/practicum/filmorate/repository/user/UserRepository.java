@@ -31,7 +31,7 @@ public class UserRepository implements UserStorage {
     }
 
     @Override
-    public User add(User user) {
+    public User createUser(User user) {
         if (user.getId() == null) {
             user.setId(idGenerator.incrementAndGet());
         }
@@ -41,20 +41,15 @@ public class UserRepository implements UserStorage {
     }
 
     @Override
-    public void update(User user) {
-        storage.put(user.getId(), user);
+    public User updateUser(User user) {
         log.debug("Пользователь ID {} обновлён", user.getId());
+        return storage.put(user.getId(), user);
     }
 
     @Override
-    public void delete(Long id) {
+    public void deleteUser(Long id) {
         storage.remove(id);
         log.info("Удалён пользователь с ID {}", id);
-    }
-
-    @Override
-    public boolean exists(Long id) {
-        return storage.containsKey(id);
     }
 
     @Override
@@ -67,17 +62,5 @@ public class UserRepository implements UserStorage {
             }
         }
         return result;
-    }
-
-    @Override
-    public boolean loginExists(User user) {
-        return storage.values().stream()
-                .anyMatch(u -> u.getLogin().equals(user.getLogin()));
-    }
-
-    @Override
-    public boolean emailExists(User user) {
-        return storage.values().stream()
-                .anyMatch(u -> u.getEmail().equals(user.getEmail()));
     }
 }
