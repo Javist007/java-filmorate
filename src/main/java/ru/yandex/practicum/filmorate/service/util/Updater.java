@@ -18,6 +18,7 @@ public final class Updater {
     /**
      * Метод для обновления полей моделей
      */
+    @Deprecated
     public static <T> void updateField(Logger log,
                                        Long id,
                                        String entityType,
