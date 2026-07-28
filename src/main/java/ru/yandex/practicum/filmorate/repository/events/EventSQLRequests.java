@@ -11,8 +11,8 @@ public class EventSQLRequests {
     public static final String FIND_BY_USER_ID = """
             SELECT *
             FROM events
-            WHERE user_id = ?
-            ORDER BY event_timestamp DESC"
+            WHERE user_id = :userId
+            ORDER BY event_timestamp ASC
             """;
 
     public static final String INSERT_EVENT = """
