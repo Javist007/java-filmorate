@@ -34,27 +34,28 @@
 ## Примеры запросов
 
 ### Фильмы
-| Метод  | Путь                        |
-|--------|-----------------------------|
-| GET    | `/films`                    |
-| GET    | `/films/{id}`               |
-| GET    | `/films/popular`            |
-| POST   | `/films`                    |
-| PUT    | `/films`                    |
-| PUT    | `/films/{id}/like/{userId}` |
-| DELETE | `/films/{id}`               |
-| DELETE | `/films/{id}/like/{userId}` |
+| Метод  | Путь                            |
+|--------|---------------------------------|
+| GET    | `/films`                        |
+| GET    | `/films/{filmId}`               |
+| GET    | `/films/popular`                |
+| POST   | `/films`                        |
+| PUT    | `/films`                        |
+| PUT    | `/films/{filmId}/like/{userId}` |
+| DELETE | `/films/{filmId}`               |
+| DELETE | `/films/{filmId}/like/{userId}` |
 
 ### Пользователи
 | Метод  | Путь                                       |
 |--------|--------------------------------------------|
 | GET    | `/users`                                   |
-| GET    | `/users/{id}`                              |
-| GET    | `/users/{id}/friends`                      |
+| GET    | `/users/{userId}`                          |
+| GET    | `/users/{userId}/friends`                  |
 | GET    | `/users/{userId}/friends/common/{otherId}` |
 | POST   | `/users`                                   |
 | PUT    | `/users`                                   |
 | PUT    | `/users/{userId}/friends/{friendId}`       |
+| DELETE | `/users/{userId}`                          |
 | DELETE | `/users/{userId}/friends/{friendId}`       |
 
 ### Дополнительные ресурсы
