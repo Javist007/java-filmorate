@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 
 /**
  * Утилитарный класс
+ * Не используется после перехода на DB_H2.
  */
 @Slf4j
 public final class Updater {
