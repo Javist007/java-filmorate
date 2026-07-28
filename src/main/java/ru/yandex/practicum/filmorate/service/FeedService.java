@@ -2,8 +2,12 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.expression.Operation;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.EventDto;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.EventOperation;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.repository.events.EventStorage;
 import ru.yandex.practicum.filmorate.service.mapper.EventMapper;
 
@@ -29,5 +33,16 @@ public class FeedService {
         return eventStorage.findEventsByUserId(userId).stream()
                 .map(EventMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    public void saveEvent(Long userId, Long entityId, EventType eventType, EventOperation operation) {
+        Event event = new Event();
+        event.setUserId(userId);
+        event.setEntityId(entityId);
+        event.setEventType(eventType);
+        event.setOperation(operation);
+        event.setTimestamp(java.time.Instant.now().toEpochMilli());
+
+        eventStorage.saveEvent(event);
     }
 }

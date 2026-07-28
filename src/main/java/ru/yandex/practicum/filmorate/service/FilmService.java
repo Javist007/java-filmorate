@@ -11,6 +11,8 @@ import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.dto.film.FilmResponse;
 import ru.yandex.practicum.filmorate.exception.DuplicateException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.EventOperation;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -38,6 +40,7 @@ public class FilmService {
     private final LikeStorage likeRepository;
     private final GenreService genreService;
     private final MpaService mpaService;
+    private final FeedService feedService;
     private final DirectorService directorService;
 
     public Collection<FilmResponse> findAll() {
@@ -114,6 +117,8 @@ public class FilmService {
             throw new DuplicateException("Пользователю уже понравился этот фильм");
         }
         log.debug("Пользователь ID {} поставил лайк фильму ID {}", userId, filmId);
+
+        feedService.saveEvent(userId, filmId, EventType.LIKE, EventOperation.ADD);
     }
 
     public void removeLike(Long filmId, Long userId) {
@@ -124,6 +129,8 @@ public class FilmService {
             throw new NotFoundException("Данного лайка не существует");
         }
         log.debug("Пользователь ID {} убрал лайк с фильма ID {}", userId, filmId);
+
+        feedService.saveEvent(userId, filmId, EventType.LIKE, EventOperation.REMOVE);
     }
 
     public List<FilmResponse> findDirectorFilms(long directorId, String sortType) {

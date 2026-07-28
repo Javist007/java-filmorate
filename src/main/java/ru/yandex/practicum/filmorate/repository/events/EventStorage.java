@@ -7,4 +7,6 @@ import java.util.List;
 public interface EventStorage {
 
     List<Event> findEventsByUserId(Long userId);
+
+    void saveEvent(Event event);
 }

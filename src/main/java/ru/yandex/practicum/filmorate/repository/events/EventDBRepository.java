@@ -34,4 +34,15 @@ public class EventDBRepository extends BaseStorage<Event> implements EventStorag
                 mapper
         );
     }
+
+    public void saveEvent(Event event) {
+        log.debug("Сохраняем событие в базу данных: {}", event);
+        insert(EventSQLRequests.INSERT_EVENT,
+                event.getUserId(),
+                event.getEntityId(),
+                event.getEventType().name(),
+                event.getOperation().name(),
+                event.getTimestamp()
+        );
+    }
 }
