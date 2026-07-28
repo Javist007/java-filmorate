@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class GenreSQLRequests {
 
-    public static final String FIND_ALL_GENRES = "SELECT * FROM genres";
+    public static final String FIND_ALL_GENRES = "SELECT * FROM genres ORDER BY id ASC";
 
     public static final String FIND_GENRE_BY_ID = "SELECT * FROM genres WHERE id = ?";
 
