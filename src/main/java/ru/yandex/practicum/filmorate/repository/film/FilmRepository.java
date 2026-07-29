@@ -70,4 +70,10 @@ public class FilmRepository implements FilmStorage {
                 .limit(count)
                 .toList();
     }
+
+    @Override
+    public List<Film> findDirectorFilms(long directorId, String sortType) {
+        throw new UnsupportedOperationException("Данный метод больше не поддерживается");
+
+    }
 }

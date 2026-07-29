@@ -19,5 +19,7 @@ public interface FilmStorage {
     void delete(Long id);
 
     List<Film> getPopular(Integer count);
+
+    List<Film> findDirectorFilms(long directorId, String sortType);
 }
 

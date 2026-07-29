@@ -73,4 +73,12 @@ public class FilmDBRepository extends BaseStorage<Film> implements FilmStorage {
         log.debug("Возвращаем топ {} популярных фильмов", count);
         return findMany(FilmSQLRequests.FIND_POPULAR_FILMS, count);
     }
+
+    @Override
+    public List<Film> findDirectorFilms(long directorId, String sortType) {
+        log.debug("Получение фильмов по режиссеру ID:{}, отсортированных по - {}", directorId, sortType);
+        return findMany(sortType.equalsIgnoreCase("likes")
+                ? FilmSQLRequests.FIND_FILMS_LIKES_SORT
+                : FilmSQLRequests.FIND_FILMS_YEAR_SORT, directorId);
+    }
 }

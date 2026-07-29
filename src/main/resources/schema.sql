@@ -58,3 +58,19 @@ CREATE TABLE IF NOT EXISTS friends
     CONSTRAINT fk_friend FOREIGN KEY (friend_id) REFERENCES users (id) ON delete CASCADE,
     CONSTRAINT chk_not_self CHECK (user_id <> friend_id)
 );
+
+CREATE TABLE IF NOT EXISTS directors (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL
+    );
+
+-- ...
+
+CREATE TABLE IF NOT EXISTS film_director (
+	film_id BIGINT NOT NULL,
+	director_id BIGINT NOT NULL,
+	PRIMARY KEY (film_id, director_id),
+	CONSTRAINT fk_film_dir FOREIGN KEY (film_id) REFERENCES films(id) ON DELETE CASCADE,
+	CONSTRAINT fk_director_dir FOREIGN KEY (director_id) REFERENCES directors(id) ON DELETE CASCADE
+	);
+
