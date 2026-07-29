@@ -36,6 +36,15 @@ public class FilmController {
         return filmService.findById(id);
     }
 
+    @GetMapping("/common")
+    public Collection<FilmResponse> getCommonFilms(
+            @RequestParam Long userId,
+            @RequestParam Long friendId
+    ) {
+        log.info("GET /films/common?userId={}&friendId={} – запрос общих фильмов", userId, friendId);
+        return filmService.getCommonFilms(userId, friendId);
+    }
+
     @PostMapping
     public FilmResponse create(@Valid @RequestBody CreateFilmRequest request) {
         log.info("POST /films – создание фильма: {}", request.getName());
