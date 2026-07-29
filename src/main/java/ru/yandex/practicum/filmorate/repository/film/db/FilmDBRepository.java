@@ -73,4 +73,10 @@ public class FilmDBRepository extends BaseStorage<Film> implements FilmStorage {
         log.debug("Возвращаем топ {} популярных фильмов", count);
         return findMany(FilmSQLRequests.FIND_POPULAR_FILMS, count);
     }
+
+    @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        log.debug("Выборка общих фильмов из БД для пользователей: {} и {}", userId, friendId);
+        return findMany(FilmSQLRequests.FIND_COMMON_FILMS, userId, friendId);
+    }
 }
