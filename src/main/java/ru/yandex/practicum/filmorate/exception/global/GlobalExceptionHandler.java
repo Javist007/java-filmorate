@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exception.DuplicateException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ReviewsNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 @RestControllerAdvice
@@ -35,6 +36,13 @@ public class GlobalExceptionHandler {
         log.warn("Дублирование данных: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new ErrorResponse("DUPLICATE_ERROR", ex.getMessage()));
+    }
+
+    @ExceptionHandler(ReviewsNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleReviewsNotFoundException(ReviewsNotFoundException ex) {
+        log.warn("Отзыв не найден: {}", ex.getMessage());
+        return ResponseEntity.badRequest()
+                .body(new ErrorResponse("NOT_FOUND", ex.getMessage()));
     }
 }
 
