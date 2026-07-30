@@ -1,0 +1,31 @@
+package ru.yandex.practicum.filmorate.repository.film;
+
+import ru.yandex.practicum.filmorate.model.Film;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+public interface FilmStorage {
+
+    Collection<Film> findAll();
+
+    Optional<Film> findById(Long id);
+
+    Film create(Film film);
+
+    Film update(Film film);
+
+    void delete(Long id);
+
+    List<Film> getPopular(Integer count, Long genreId, Integer year);
+
+    List<Film> findDirectorFilms(long directorId, String sortType);
+
+    List<Film> getCommonFilms(Long userId, Long friendId);
+
+    List<Film> search(String query, Set<String> by);
+}
+
+
