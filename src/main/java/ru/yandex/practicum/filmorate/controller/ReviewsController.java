@@ -12,10 +12,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/reviews")
-@RequiredArgsConstructor
 @Validated
 public class ReviewsController {
     private final ReviewService reviewService;
+
+    public ReviewsController(ReviewService service) {
+        this.reviewService = service;
+    }
 
     @PostMapping
     public Review create(@Valid @RequestBody Review review) {

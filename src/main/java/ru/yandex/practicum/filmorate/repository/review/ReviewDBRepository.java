@@ -2,12 +2,13 @@ package ru.yandex.practicum.filmorate.repository.review;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.entity.Review;
 import ru.yandex.practicum.filmorate.repository.BaseStorage;
 
 import java.util.List;
 import java.util.Optional;
-
+@Repository
 public class ReviewDBRepository extends BaseStorage<Review> implements ReviewStorage {
     public ReviewDBRepository(JdbcTemplate jdbc, RowMapper<Review> mapper) {
         super(jdbc, mapper);

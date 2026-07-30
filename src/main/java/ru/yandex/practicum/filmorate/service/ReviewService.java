@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.entity.Review;
 import ru.yandex.practicum.filmorate.exception.ReviewsNotFoundException;
 import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
@@ -7,7 +8,7 @@ import ru.yandex.practicum.filmorate.repository.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.repository.user.UserStorage;
 
 import java.util.List;
-
+@Service
 public class ReviewService {
     private final ReviewStorage storage;
     private final UserStorage userStorage;
