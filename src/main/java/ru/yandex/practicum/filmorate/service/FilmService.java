@@ -5,11 +5,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.GenreDto;
+import ru.yandex.practicum.filmorate.dto.director.DirectorResponse;
 import ru.yandex.practicum.filmorate.dto.film.CreateFilmRequest;
 import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.dto.film.FilmResponse;
 import ru.yandex.practicum.filmorate.exception.DuplicateException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
@@ -36,6 +38,7 @@ public class FilmService {
     private final LikeStorage likeRepository;
     private final GenreService genreService;
     private final MpaService mpaService;
+    private final DirectorService directorService;
 
     public Collection<FilmResponse> findAll() {
         log.info("Получаем список всех фильмов");
@@ -59,6 +62,12 @@ public class FilmService {
                 ? request.getGenres().stream().map(GenreDto::getId).distinct().toList()
                 : null;
         genreService.updateFilmGenres(film.getId(), genreIds);
+
+        List<Long> directorIds = request.getDirectors() != null
+                ? request.getDirectors().stream().map(DirectorResponse::getId).distinct().toList()
+                : null;
+        directorService.updateFilmDirectors(film.getId(), directorIds);
+
         log.info("Добавлен фильм {} с ID {}", newFilm.getName(), newFilm.getId());
         return buildFilmResponse(newFilm);
     }
@@ -71,6 +80,12 @@ public class FilmService {
                 ? request.getGenres().stream().map(GenreDto::getId).distinct().toList()
                 : null;
         genreService.updateFilmGenres(film.getId(), genreIds);
+
+        List<Long> directorIds = request.getDirectors() != null
+                ? request.getDirectors().stream().map(DirectorResponse::getId).distinct().toList()
+                : null;
+        directorService.updateFilmDirectors(film.getId(), directorIds);
+
         log.info("Обновлен фильм {} с ID {}", filmUpdate.getName(), filmUpdate.getId());
         return buildFilmResponse(filmUpdate);
     }
@@ -82,9 +97,12 @@ public class FilmService {
     }
 
 
-    public List<FilmResponse> getPopular(Integer count) {
-        log.info("Получаем {} самых популярных фильмов", count);
-        List<Film> films = filmRepository.getPopular(count);
+    public List<FilmResponse> getPopular(Integer count, Long genreId, Integer year) {
+        log.info("Получаем {} популярных фильмов (жанр: {}, год: {})", count, genreId, year);
+        if (count == null) {
+            count = (genreId != null || year != null) ? Integer.MAX_VALUE : 10;
+        }
+        List<Film> films = filmRepository.getPopular(count, genreId, year);
         return buildFilmResponses(films);
     }
 
@@ -108,6 +126,13 @@ public class FilmService {
         log.debug("Пользователь ID {} убрал лайк с фильма ID {}", userId, filmId);
     }
 
+    public List<FilmResponse> findDirectorFilms(long directorId, String sortType) {
+        directorService.findById(directorId);
+        List<Film> films = filmRepository.findDirectorFilms(directorId, sortType);
+        log.debug("Found {} films", films.size());
+        return buildFilmResponses(films);
+    }
+
     private List<FilmResponse> buildFilmResponses(Collection<Film> films) {
         if (films.isEmpty()) {
             return List.of();
@@ -115,12 +140,14 @@ public class FilmService {
 
         Set<Long> filmIds = films.stream().map(Film::getId).collect(Collectors.toSet());
         Map<Long, List<Genre>> genresMap = genreService.findGenresByFilmIds(filmIds);
+        Map<Long, List<Director>> directorsMap = directorService.findDirectorsByFilmIds(filmIds);
 
         return films.stream()
                 .map(film -> {
                     FilmResponse response = FilmMapper.toDto(film);
                     response.setGenres(genresMap.getOrDefault(film.getId(), List.of()));
                     response.setMpa(film.getMpa());
+                    response.setDirectors(directorsMap.getOrDefault(film.getId(), List.of()));
                     return response;
                 })
                 .toList();
@@ -138,5 +165,21 @@ public class FilmService {
     private void userIsExists(Long userId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь ID: " + userId + " не найден"));
+    }
+
+    public List<FilmResponse> getCommonFilms(Long userId, Long friendId) {
+        userIsExists(userId);
+        userIsExists(friendId);
+        log.info("Запрос списка общих фильмов пользователей ID: {} | {}", userId, friendId);
+
+        List<Film> commonFilms = filmRepository.getCommonFilms(userId, friendId);
+        return buildFilmResponses(commonFilms);
+    }
+
+    public List<FilmResponse> search(String query, Set<String> by) {
+        log.debug("Поиск фильмов, запрос: '{}', фильтры: '{}'", query, by);
+        Set<String> collect = by.stream().map(String::toLowerCase).collect(Collectors.toSet());
+        List<Film> films = filmRepository.search(query, collect);
+        return buildFilmResponses(films);
     }
 }

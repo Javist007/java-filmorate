@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * REST‑контроллер для фильмов.
@@ -34,6 +36,15 @@ public class FilmController {
     public FilmResponse getFilm(@PathVariable Long id) {
         log.info("GET /films/{} – получение конкретного фильма ", id);
         return filmService.findById(id);
+    }
+
+    @GetMapping("/common")
+    public Collection<FilmResponse> getCommonFilms(
+            @RequestParam Long userId,
+            @RequestParam Long friendId
+    ) {
+        log.info("GET /films/common?userId={}&friendId={} – запрос общих фильмов", userId, friendId);
+        return filmService.getCommonFilms(userId, friendId);
     }
 
     @PostMapping
@@ -67,8 +78,30 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<FilmResponse> getPopular(@RequestParam(required = false, defaultValue = "10") Integer count) {
-        log.info("GET /films/popular?count={}", count);
-        return filmService.getPopular(count);
+    public List<FilmResponse> getPopular(
+            @RequestParam(required = false) Integer count,
+            @RequestParam(required = false) Long genreId,
+            @RequestParam(required = false) @Min(1895) Integer year
+        ) {
+        log.info("GET /films/popular?count={}&genreId={}&year={}", count, genreId, year);
+        return filmService.getPopular(count, genreId, year);
+    }
+
+    @GetMapping("director/{directorId}")
+    public List<FilmResponse> getDirectorFilmsSorted(@PathVariable @Positive long directorId,
+                                                     @RequestParam(name = "sortBy") String sortType) {
+        List<FilmResponse> films = filmService.findDirectorFilms(directorId, sortType);
+        log.debug("Найдено {} фильмов", films.size());
+        return films;
+    }
+
+    @GetMapping("/search")
+    public List<FilmResponse> search(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "title") Set<String> by
+    ) {
+        List<FilmResponse> results = filmService.search(query, by);
+        log.debug("{} фильмов найдено", results.size());
+        return results;
     }
 }
