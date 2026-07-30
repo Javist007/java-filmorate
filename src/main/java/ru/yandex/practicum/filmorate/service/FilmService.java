@@ -163,4 +163,13 @@ public class FilmService {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь ID: " + userId + " не найден"));
     }
+
+    public List<FilmResponse> getCommonFilms(Long userId, Long friendId) {
+        userIsExists(userId);
+        userIsExists(friendId);
+        log.info("Запрос списка общих фильмов пользователей ID: {} | {}", userId, friendId);
+
+        List<Film> commonFilms = filmRepository.getCommonFilms(userId, friendId);
+        return buildFilmResponses(commonFilms);
+    }
 }

@@ -75,6 +75,12 @@ public class FilmDBRepository extends BaseStorage<Film> implements FilmStorage {
     }
 
     @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        log.debug("Выборка общих фильмов из БД для пользователей: {} и {}", userId, friendId);
+        return findMany(FilmSQLRequests.FIND_COMMON_FILMS, userId, friendId);
+    }
+
+    @Override
     public List<Film> findDirectorFilms(long directorId, String sortType) {
         log.debug("Получение фильмов по режиссеру ID:{}, отсортированных по - {}", directorId, sortType);
         return findMany(sortType.equalsIgnoreCase("likes")

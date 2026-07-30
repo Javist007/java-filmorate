@@ -76,4 +76,18 @@ public class FilmRepository implements FilmStorage {
         throw new UnsupportedOperationException("Данный метод больше не поддерживается");
 
     }
+
+    @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        log.debug("Получение общих фильмов из памяти для пользователей {} и {}", userId, friendId);
+        return filmStorage.values().stream()
+                .filter(film -> likeStorage.getUserIds(film.getId()).contains(userId)
+                        && likeStorage.getUserIds(film.getId()).contains(friendId))
+                .sorted((f1, f2) -> {
+                    int likes1 = likeStorage.getUserIds(f1.getId()).size();
+                    int likes2 = likeStorage.getUserIds(f2.getId()).size();
+                    return Integer.compare(likes2, likes1);
+                })
+                .toList();
+    }
 }

@@ -40,6 +40,25 @@ public class FilmSQLRequests {
             GROUP BY f.id ORDER BY COUNT(l.user_id) DESC LIMIT ?
             """;
 
+    public static final String FIND_COMMON_FILMS = """
+            SELECT f.*, r.name AS rating_name
+            FROM films f
+            JOIN ratings r ON f.rating_id = r.id
+            LEFT JOIN likes l ON f.id = l.film_id
+            WHERE f.id IN (
+                SELECT l1.film_id
+                FROM likes l1
+                WHERE l1.user_id = ?
+            )
+            AND f.id IN (
+                SELECT l2.film_id
+                FROM likes l2
+                WHERE l2.user_id = ?
+            )
+            GROUP BY f.id, r.name
+            ORDER BY COUNT(l.user_id) DESC
+            """;
+
     public static final String FIND_FILMS_LIKES_SORT = """
             SELECT f.*, r.name AS rating_name
             FROM films f
