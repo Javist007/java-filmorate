@@ -66,9 +66,9 @@ class ReviewDBRepositoryTest {
     private Review review(String content) {
         Review review = new Review();
         review.setContent(content);
-        review.setPositive(true);
+        review.setIsPositive(true);
         review.setUserId(authorId);
-        review.setFilmID(filmId);
+        review.setFilmId(filmId);
         return review;
     }
 }
