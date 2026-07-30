@@ -76,6 +76,12 @@ public class FilmRepository implements FilmStorage {
     }
 
     @Override
+    public List<Film> findDirectorFilms(long directorId, String sortType) {
+        throw new UnsupportedOperationException("Данный метод больше не поддерживается");
+
+    }
+
+    @Override
     public List<Film> getCommonFilms(Long userId, Long friendId) {
         log.debug("Получение общих фильмов из памяти для пользователей {} и {}", userId, friendId);
         return filmStorage.values().stream()

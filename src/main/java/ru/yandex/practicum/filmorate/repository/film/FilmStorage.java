@@ -20,6 +20,9 @@ public interface FilmStorage {
 
     List<Film> getPopular(Integer count, Long genreId, Integer year);
 
-    List<Film> getCommonFilms(Long userId, Long friendId);
+    List<Film> findDirectorFilms(long directorId, String sortType);
 
+    List<Film> getCommonFilms(Long userId, Long friendId);
 }
+
+

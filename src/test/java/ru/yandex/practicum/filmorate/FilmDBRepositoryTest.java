@@ -29,7 +29,7 @@ class FilmDBRepositoryTest {
 
     @BeforeEach
     void clean() {
-        testEntity.cleanTables("film_genre", "likes", "films", "users");
+        testEntity.cleanTables("film_genre", "likes", "films", "users", "film_director");
     }
 
     @Test
