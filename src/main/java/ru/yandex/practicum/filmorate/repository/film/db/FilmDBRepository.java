@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 @Slf4j
@@ -86,5 +87,22 @@ public class FilmDBRepository extends BaseStorage<Film> implements FilmStorage {
         return findMany(sortType.equalsIgnoreCase("likes")
                 ? FilmSQLRequests.FIND_FILMS_LIKES_SORT
                 : FilmSQLRequests.FIND_FILMS_YEAR_SORT, directorId);
+    }
+
+    @Override
+    public List<Film> search(String query, Set<String> by) {
+        log.debug("Поиск фильмов в базе, запрос: '{}', фильтры: '{}'", query, by);
+        String searchQuery = query.toLowerCase().trim();
+
+        boolean title = by.contains("title");
+        boolean director = by.contains("director");
+
+        if (title && director) {
+            return findMany(FilmSQLRequests.SEARCH_BOTH, searchQuery, searchQuery);
+        } else if (director) {
+            return findMany(FilmSQLRequests.SEARCH_DIRECTOR, searchQuery);
+        } else {
+            return findMany(FilmSQLRequests.SEARCH_TITLE, searchQuery);
+        }
     }
 }

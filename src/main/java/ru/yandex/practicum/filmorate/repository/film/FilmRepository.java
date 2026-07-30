@@ -94,4 +94,10 @@ public class FilmRepository implements FilmStorage {
                 })
                 .toList();
     }
+
+    @Override
+    @Deprecated
+    public List<Film> search(String query, Set<String> by) {
+        return List.of();
+    }
 }

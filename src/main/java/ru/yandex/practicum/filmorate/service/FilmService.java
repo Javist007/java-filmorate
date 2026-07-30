@@ -175,4 +175,11 @@ public class FilmService {
         List<Film> commonFilms = filmRepository.getCommonFilms(userId, friendId);
         return buildFilmResponses(commonFilms);
     }
+
+    public List<FilmResponse> search(String query, Set<String> by) {
+        log.debug("Поиск фильмов, запрос: '{}', фильтры: '{}'", query, by);
+        Set<String> collect = by.stream().map(String::toLowerCase).collect(Collectors.toSet());
+        List<Film> films = filmRepository.search(query, collect);
+        return buildFilmResponses(films);
+    }
 }

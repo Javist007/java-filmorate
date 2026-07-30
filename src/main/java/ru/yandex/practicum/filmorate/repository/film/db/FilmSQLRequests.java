@@ -89,4 +89,39 @@ public class FilmSQLRequests {
             )
             ORDER BY EXTRACT(YEAR FROM f.release_date)
             """;
+
+    public static final String SEARCH_TITLE = """
+            SELECT f.*, r.name AS rating_name
+            FROM films f
+            LEFT JOIN ratings r ON f.rating_id = r.id
+            WHERE LOWER(f.name) LIKE LOWER(CONCAT('%', ?, '%'))
+            ORDER BY (SELECT COUNT(*) FROM likes l WHERE l.film_id = f.id) DESC
+            """;
+
+    public static final String SEARCH_DIRECTOR = """
+            SELECT f.*, r.name AS rating_name
+            FROM films f
+            LEFT JOIN ratings r ON f.rating_id = r.id
+            WHERE EXISTS (
+                SELECT 1 FROM film_director df
+                JOIN directors d ON df.director_id = d.id
+                WHERE df.film_id = f.id
+                  AND LOWER(d.name) LIKE LOWER(CONCAT('%', ?, '%'))
+            )
+            ORDER BY (SELECT COUNT(*) FROM likes l WHERE l.film_id = f.id) DESC
+            """;
+
+    public static final String SEARCH_BOTH = """
+            SELECT f.*, r.name AS rating_name
+            FROM films f
+            LEFT JOIN ratings r ON f.rating_id = r.id
+            WHERE LOWER(f.name) LIKE LOWER(CONCAT('%', ?, '%'))
+               OR EXISTS (
+                   SELECT 1 FROM film_director df
+                   JOIN directors d ON df.director_id = d.id
+                   WHERE df.film_id = f.id
+                     AND LOWER(d.name) LIKE LOWER(CONCAT('%', ?, '%'))
+               )
+            ORDER BY (SELECT COUNT(*) FROM likes l WHERE l.film_id = f.id) DESC
+            """;
 }
