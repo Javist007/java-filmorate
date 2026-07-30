@@ -81,7 +81,6 @@ CREATE TABLE IF NOT EXISTS review_reactions
     CONSTRAINT fk_reaction_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS idx_review
 
 
 CREATE TABLE IF NOT EXISTS directors (
@@ -89,7 +88,7 @@ CREATE TABLE IF NOT EXISTS directors (
     name VARCHAR(255) NOT NULL
     );
 
--- ...
+
 
 CREATE TABLE IF NOT EXISTS film_director (
 	film_id BIGINT NOT NULL,
