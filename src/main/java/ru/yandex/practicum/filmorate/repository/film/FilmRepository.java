@@ -60,8 +60,12 @@ public class FilmRepository implements FilmStorage {
     }
 
     @Override
-    public List<Film> getPopular(Integer count) {
+    public List<Film> getPopular(Integer count, Long genreId, Integer year) {
+        log.debug("Получение популярных фильмов из памяти с фильтрами: count={}, genreId={}, year={}", count, genreId, year);
+
         return filmStorage.values().stream()
+                .filter(film -> year == null || (film.getReleaseDate() != null &&
+                        film.getReleaseDate().getYear() == year))
                 .sorted((f1, f2) -> {
                     int likes1 = likeStorage.getUserIds(f1.getId()).size();
                     int likes2 = likeStorage.getUserIds(f2.getId()).size();

@@ -37,7 +37,15 @@ public class FilmSQLRequests {
             FROM films f
             LEFT JOIN ratings r ON f.rating_id = r.id
             LEFT JOIN likes l ON f.id = l.film_id
-            GROUP BY f.id ORDER BY COUNT(l.user_id) DESC LIMIT ?
+            WHERE f.id IN (
+                        SELECT DISTINCT f2.id
+                        FROM films f2
+                        LEFT JOIN film_genre fg ON f2.id = fg.film_id
+                        WHERE (? IS NULL OR fg.genre_id = ?)
+            )
+            AND (? IS NULL OR EXTRACT(YEAR FROM f.release_date) = ?)
+            GROUP BY f.id, r.name
+            ORDER BY COUNT(l.user_id) DESC LIMIT ?
             """;
 
     public static final String FIND_COMMON_FILMS = """
