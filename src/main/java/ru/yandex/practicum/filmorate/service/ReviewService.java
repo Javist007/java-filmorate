@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.repository.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.repository.user.UserStorage;
 
 import java.util.List;
+
 @Service
 public class ReviewService {
     private final ReviewStorage storage;
@@ -29,11 +30,11 @@ public class ReviewService {
     }
 
     public Review update(Review review) {
-       if (review.getReviewId() == 0) {
-           throw new ReviewsNotFoundException("Не указан идентификатор отзыва");
-       }
-       requireReview(review.getReviewId());
-       return storage.update(review);
+        if (review.getReviewId() == 0) {
+            throw new ReviewsNotFoundException("Не указан идентификатор отзыва");
+        }
+        requireReview(review.getReviewId());
+        return storage.update(review);
     }
 
     public void delete(long reviewId) {
@@ -65,7 +66,7 @@ public class ReviewService {
         storage.setReaction(reviewId, userid, false);
     }
 
-    public void removeLike(long reviewId, long userId){
+    public void removeLike(long reviewId, long userId) {
         removeReaction(reviewId, userId, true);
     }
 
@@ -77,7 +78,7 @@ public class ReviewService {
         requireReview(reviewId);
         requireUser(userId);
 
-        if(!storage.deleteReaction(reviewId, userId, useful)) {
+        if (!storage.deleteReaction(reviewId, userId, useful)) {
             throw new ReviewsNotFoundException("Оценка отзыва не найдена");
         }
 
@@ -85,17 +86,17 @@ public class ReviewService {
 
 
     private void requireUser(long userId) {
-        userStorage.findById(userId).orElseThrow(()-> new RuntimeException("Пользователь не найден"));
+        userStorage.findById(userId).orElseThrow(() -> new RuntimeException("Пользователь не найден"));
 
     }
 
     private void requireFilm(long filmId) {
-        filmStorage.findById(filmId).orElseThrow(()-> new RuntimeException("Фильм не найден"));
+        filmStorage.findById(filmId).orElseThrow(() -> new RuntimeException("Фильм не найден"));
 
     }
 
     private Review requireReview(long reviewId) {
-       return storage.findById(reviewId).orElseThrow(()-> new RuntimeException("Отзыв не найден"));
+        return storage.findById(reviewId).orElseThrow(() -> new RuntimeException("Отзыв не найден"));
     }
 
 

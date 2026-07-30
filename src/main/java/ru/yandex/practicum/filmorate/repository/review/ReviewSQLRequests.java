@@ -4,6 +4,7 @@ public class ReviewSQLRequests {
     private ReviewSQLRequests() {
 
     }
+
     public static final String REVIEW_SELECT = """
             SELECT r.review_id,
                    r.content,

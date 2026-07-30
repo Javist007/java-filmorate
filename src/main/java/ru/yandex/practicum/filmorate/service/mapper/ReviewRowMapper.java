@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.entity.Review;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 @Component
 public class ReviewRowMapper implements RowMapper<Review> {
     public Review mapRow(ResultSet rs, int rowNumber) throws SQLException {

@@ -37,17 +37,17 @@ public class ReviewsController {
 
     @GetMapping("/{id}")
     public Review findById(@PathVariable long id) {
-       return reviewService.findById(id);
+        return reviewService.findById(id);
     }
 
     @GetMapping()
     public List<Review> findAll(@RequestParam(required = false) @Positive long id, @RequestParam(defaultValue = "10") int count) {
-       return reviewService.findAll(id, count);
+        return reviewService.findAll(id, count);
     }
 
     @PutMapping("/{id}/like/{userId}")
     public void addLike(@PathVariable @Positive long id, @PathVariable @Positive long userId) {
-        reviewService.addLike(id, userId );
+        reviewService.addLike(id, userId);
     }
 
     @PutMapping("/{id}/dislike/{userId}")

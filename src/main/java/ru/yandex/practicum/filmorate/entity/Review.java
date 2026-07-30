@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Data
- public class Review {
+public class Review {
 
 
     private long reviewId;
