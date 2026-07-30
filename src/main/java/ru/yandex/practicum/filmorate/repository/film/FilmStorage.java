@@ -18,7 +18,7 @@ public interface FilmStorage {
 
     void delete(Long id);
 
-    List<Film> getPopular(Integer count);
+    List<Film> getPopular(Integer count, Long genreId, Integer year);
 
     List<Film> getCommonFilms(Long userId, Long friendId);
 

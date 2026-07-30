@@ -82,9 +82,12 @@ public class FilmService {
     }
 
 
-    public List<FilmResponse> getPopular(Integer count) {
-        log.info("Получаем {} самых популярных фильмов", count);
-        List<Film> films = filmRepository.getPopular(count);
+    public List<FilmResponse> getPopular(Integer count, Long genreId, Integer year) {
+        log.info("Получаем {} популярных фильмов (жанр: {}, год: {})", count, genreId, year);
+        if (count == null) {
+            count = (genreId != null || year != null) ? Integer.MAX_VALUE : 10;
+        }
+        List<Film> films = filmRepository.getPopular(count, genreId, year);
         return buildFilmResponses(films);
     }
 
