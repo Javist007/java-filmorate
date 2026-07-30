@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * REST‑контроллер для фильмов.
@@ -92,5 +93,15 @@ public class FilmController {
         List<FilmResponse> films = filmService.findDirectorFilms(directorId, sortType);
         log.debug("Найдено {} фильмов", films.size());
         return films;
+    }
+
+    @GetMapping("/search")
+    public List<FilmResponse> search(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "title") Set<String> by
+    ) {
+        List<FilmResponse> results = filmService.search(query, by);
+        log.debug("{} фильмов найдено", results.size());
+        return results;
     }
 }
