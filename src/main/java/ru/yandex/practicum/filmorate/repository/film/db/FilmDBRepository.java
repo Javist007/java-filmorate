@@ -69,9 +69,9 @@ public class FilmDBRepository extends BaseStorage<Film> implements FilmStorage {
     }
 
     @Override
-    public List<Film> getPopular(Integer count) {
-        log.debug("Возвращаем топ {} популярных фильмов", count);
-        return findMany(FilmSQLRequests.FIND_POPULAR_FILMS, count);
+    public List<Film> getPopular(Integer count, Long genreId, Integer year) {
+        log.debug("Возвращаем топ {} популярных фильмов с фильтрами: genreId={}, year={}", count, genreId, year);
+        return findMany(FilmSQLRequests.FIND_POPULAR_FILMS, genreId, genreId, year, year, count);
     }
 
     @Override
