@@ -30,7 +30,7 @@ public class ReviewDBRepository extends BaseStorage<Review> implements ReviewSto
 
     @Override
     public boolean delete(long reviewId) {
-       return delete(ReviewSQLRequests.DELETE, reviewId);
+        return delete(ReviewSQLRequests.DELETE, reviewId);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class ReviewDBRepository extends BaseStorage<Review> implements ReviewSto
         if (filmId == 0) {
             return findMany(ReviewSQLRequests.FIND_ALL, count);
         } else {
-            return findMany(ReviewSQLRequests.FIND_BY_FILM_ID, count);
+            return findMany(ReviewSQLRequests.FIND_BY_FILM_ID, filmId, count);
         }
     }
 
@@ -51,7 +51,7 @@ public class ReviewDBRepository extends BaseStorage<Review> implements ReviewSto
     public void setReaction(long reviewId, long userId, boolean useful) {
         List<Boolean> existing = jdbc.query(
                 "SELECT is_useful FROM review_reactions WHERE review_id = ? AND user_id = ?",
-                (rs, rowNum) -> rs.getBoolean("useful"),
+                (rs, rowNum) -> rs.getBoolean("is_useful"),
                 reviewId,
                 userId);
         if (existing.isEmpty()) {

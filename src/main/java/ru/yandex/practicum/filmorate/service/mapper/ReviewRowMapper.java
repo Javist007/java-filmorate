@@ -1,3 +1,4 @@
+
 package ru.yandex.practicum.filmorate.service.mapper;
 
 import org.springframework.jdbc.core.RowMapper;
@@ -12,7 +13,7 @@ public class ReviewRowMapper implements RowMapper<Review> {
         Review review = new Review();
         review.setReviewId(rs.getLong("review_id"));
         review.setContent(rs.getString("content"));
-        review.setPositive(rs.getBoolean("positive"));
+        review.setPositive(rs.getBoolean("is_positive"));
         review.setUserId(rs.getLong("user_id"));
         review.setFilmID(rs.getLong("film_id"));
         review.setUseful(rs.getInt("useful"));
