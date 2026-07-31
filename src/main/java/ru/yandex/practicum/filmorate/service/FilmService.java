@@ -140,7 +140,7 @@ public class FilmService {
         return buildFilmResponses(films);
     }
 
-    private List<FilmResponse> buildFilmResponses(Collection<Film> films) {
+    public List<FilmResponse> buildFilmResponses(Collection<Film> films) {
         if (films.isEmpty()) {
             return List.of();
         }
