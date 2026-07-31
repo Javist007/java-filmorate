@@ -79,7 +79,6 @@ public class UserService {
             log.info("Пользователь {} добавил в друзья пользователя {}", userId, friendId);
 
             feedService.saveEvent(userId, friendId, EventType.FRIEND, EventOperation.ADD);
-
         }
     }
 

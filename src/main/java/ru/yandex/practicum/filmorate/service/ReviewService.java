@@ -4,6 +4,8 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.entity.Review;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ReviewsNotFoundException;
+import ru.yandex.practicum.filmorate.model.EventOperation;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
 import ru.yandex.practicum.filmorate.repository.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.repository.user.UserStorage;
@@ -15,11 +17,13 @@ public class ReviewService {
     private final ReviewStorage storage;
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
+    private final FeedService feedService;
 
-    public ReviewService(ReviewStorage storage, UserStorage userStorage, FilmStorage filmStorage) {
+    public ReviewService(ReviewStorage storage, UserStorage userStorage, FilmStorage filmStorage, FeedService feedService) {
         this.storage = storage;
         this.userStorage = userStorage;
         this.filmStorage = filmStorage;
+        this.feedService = feedService;
     }
 
     public Review create(Review review) {
@@ -27,7 +31,12 @@ public class ReviewService {
         requireFilm(review.getFilmId());
         review.setReviewId(null);
         review.setUseful(0);
-        return storage.create(review);
+
+        Review createdReview = storage.create(review);
+
+        feedService.saveEvent(createdReview.getUserId(), createdReview.getReviewId(), EventType.REVIEW, EventOperation.ADD);
+
+        return createdReview;
     }
 
     public Review update(Review review) {
@@ -35,13 +44,17 @@ public class ReviewService {
             throw new ReviewsNotFoundException("Не указан идентификатор отзыва");
         }
         requireReview(review.getReviewId());
-        return storage.update(review);
+
+        Review updatedReview = storage.update(review);
+        feedService.saveEvent(updatedReview.getUserId(), updatedReview.getReviewId(), EventType.REVIEW, EventOperation.UPDATE);
+
+        return updatedReview;
     }
 
     public void delete(long reviewId) {
-        requireReview(reviewId);
+        Review deletedReview = requireReview(reviewId);
         storage.delete(reviewId);
-
+        feedService.saveEvent(deletedReview.getUserId(), reviewId, EventType.REVIEW, EventOperation.REMOVE);
     }
 
     public Review findById(long reviewId) {
