@@ -5,9 +5,11 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.dto.EventDto;
 import ru.yandex.practicum.filmorate.dto.user.CreateUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserResponse;
+import ru.yandex.practicum.filmorate.service.FeedService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
@@ -23,6 +25,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final FeedService feedService;
 
     @GetMapping
     public Collection<UserResponse> findAll() {
@@ -34,6 +37,12 @@ public class UserController {
     public UserResponse getUser(@PathVariable Long id) {
         log.info("GET /users/{} – получение конкретного пользователя", id);
         return userService.findById(id);
+    }
+
+    @GetMapping("/{id}/feed")
+    public List<EventDto> getFeed(@PathVariable Long id) {
+        log.info("GET /users/{}/feed – получение ленты событий пользователя", id);
+        return feedService.getFeed(id);
     }
 
     @PostMapping

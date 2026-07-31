@@ -8,6 +8,8 @@ import ru.yandex.practicum.filmorate.dto.user.CreateUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserResponse;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.EventOperation;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.friends.FriendStorage;
 import ru.yandex.practicum.filmorate.repository.user.UserStorage;
@@ -26,6 +28,7 @@ public class UserService {
 
     private final UserStorage repository;
     private final FriendStorage friendStorage;
+    private final FeedService feedService;
 
     public Collection<UserResponse> findAll() {
         log.info("Получаем список всех пользователей");
@@ -74,6 +77,8 @@ public class UserService {
 
         if (friendStorage.addFriends(userId, friendId)) {
             log.info("Пользователь {} добавил в друзья пользователя {}", userId, friendId);
+
+            feedService.saveEvent(userId, friendId, EventType.FRIEND, EventOperation.ADD);
         }
     }
 
@@ -83,6 +88,8 @@ public class UserService {
 
         if (friendStorage.deleteFriends(userId, friendId)) {
             log.info("Пользователь {} удалил из друзей пользователем {}", userId, friendId);
+
+            feedService.saveEvent(userId, friendId, EventType.FRIEND, EventOperation.REMOVE);
         }
     }
 
