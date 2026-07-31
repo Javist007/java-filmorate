@@ -33,9 +33,12 @@ public class FeedService {
                 .orElseThrow(() -> new NotFoundException("Пользователь с ID: " + userId + " не найден"));
 
 
-        return eventStorage.findEventsByUserId(userId).stream()
+        List<EventDto> feed = eventStorage.findEventsByUserId(userId).stream()
                 .map(EventMapper::toDto)
                 .collect(Collectors.toList());
+
+        log.debug("Возвращена лента из {} событий для пользователя ID: {}", feed.size(), userId);
+        return feed;
     }
 
     public void saveEvent(Long userId, Long entityId, EventType eventType, EventOperation operation) {
@@ -47,5 +50,6 @@ public class FeedService {
         event.setTimestamp(java.time.Instant.now().toEpochMilli());
 
         eventStorage.saveEvent(event);
+        log.debug("Событие сохранено в БД {}", event);
     }
 }
