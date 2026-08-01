@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.repository.director.db;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -13,7 +12,6 @@ import java.util.*;
 
 @Repository
 @Slf4j
-@Primary
 public class DirectorDBRepository extends BaseStorage<Director> implements DirectorStorage {
 
     public DirectorDBRepository(JdbcTemplate jdbc, RowMapper<Director> mapper) {
