@@ -4,7 +4,7 @@ import lombok.experimental.UtilityClass;
 import ru.yandex.practicum.filmorate.dto.review.CreateReviewRequest;
 import ru.yandex.practicum.filmorate.dto.review.ReviewResponse;
 import ru.yandex.practicum.filmorate.dto.review.UpdateReviewRequest;
-import ru.yandex.practicum.filmorate.entity.Review;
+import ru.yandex.practicum.filmorate.model.Review;
 
 @UtilityClass
 public class ReviewMapper {

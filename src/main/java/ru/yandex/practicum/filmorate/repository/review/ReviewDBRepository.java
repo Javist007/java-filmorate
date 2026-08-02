@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.repository.review;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.entity.Review;
+import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.repository.BaseStorage;
 
 import java.util.List;
@@ -69,7 +69,7 @@ public class ReviewDBRepository extends BaseStorage<Review> implements ReviewSto
     }
 
     @Override
-    public boolean deleteReaction(long reviewId, long userId, boolean useful) {
-        return jdbc.update(ReviewSqlRequest.DELETE_REACTION, reviewId, userId, useful) > 0;
+    public void deleteReaction(long reviewId, long userId, boolean useful) {
+        jdbc.update(ReviewSqlRequest.DELETE_REACTION, reviewId, userId, useful);
     }
 }

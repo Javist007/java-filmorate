@@ -20,13 +20,11 @@ public class DirectorDBRepository extends BaseStorage<Director> implements Direc
 
     @Override
     public List<Director> findAll() {
-        log.debug("Возвращаем список всех режиссёров");
         return findMany(DirectorSQLRequests.FIND_ALL_DIRECTORS);
     }
 
     @Override
     public Optional<Director> findById(long id) {
-        log.debug("Получаем режиссёра по ID: {}", id);
         return findOne(DirectorSQLRequests.FIND_DIRECTOR_BY_ID, id);
     }
 
@@ -35,7 +33,6 @@ public class DirectorDBRepository extends BaseStorage<Director> implements Direc
         long id = insert(DirectorSQLRequests.INSERT_DIRECTOR,
                 director.getName());
         director.setId(id);
-        log.debug("Создан режиссёр ID {}", id);
         return director;
     }
 
@@ -44,14 +41,12 @@ public class DirectorDBRepository extends BaseStorage<Director> implements Direc
         update(DirectorSQLRequests.UPDATE_DIRECTOR,
                 director.getName(),
                 director.getId());
-        log.debug("Обновлен режиссёр ID {}", director.getId());
         return director;
     }
 
     @Override
     public void deleteDirector(long id) {
         delete(DirectorSQLRequests.DELETE_DIRECTOR, id);
-        log.info("Удалён режиссёр ID {}", id);
     }
 
     @Override

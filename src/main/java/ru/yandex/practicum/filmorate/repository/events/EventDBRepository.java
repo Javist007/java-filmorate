@@ -27,7 +27,6 @@ public class EventDBRepository extends BaseStorage<Event> implements EventStorag
         if (userId == null) {
             return List.of();
         }
-        log.debug("Возвращаем список действий пользователя по ID: {}", userId);
         return namedJdbc.query(
                 EventSQLRequests.FIND_BY_USER_ID,
                 Map.of("userId", userId),
@@ -36,7 +35,6 @@ public class EventDBRepository extends BaseStorage<Event> implements EventStorag
     }
 
     public void saveEvent(Event event) {
-        log.debug("Сохраняем событие в базу данных: {}", event);
         insert(EventSQLRequests.INSERT_EVENT,
                 event.getUserId(),
                 event.getEntityId(),

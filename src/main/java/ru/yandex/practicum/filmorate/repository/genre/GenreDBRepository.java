@@ -23,13 +23,11 @@ public class GenreDBRepository extends BaseStorage<Genre> implements GenreStorag
 
     @Override
     public List<Genre> findAll() {
-        log.debug("Возвращаем список всех жанров");
         return findMany(GenreSQLRequests.FIND_ALL_GENRES);
     }
 
     @Override
     public Optional<Genre> findById(long id) {
-        log.debug("Возвращаем жанр по ID: {}", id);
         return findOne(GenreSQLRequests.FIND_GENRE_BY_ID, id);
     }
 
