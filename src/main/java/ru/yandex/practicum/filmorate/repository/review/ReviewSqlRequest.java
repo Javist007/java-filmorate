@@ -1,8 +1,7 @@
 package ru.yandex.practicum.filmorate.repository.review;
 
-public class ReviewSQLRequests {
-    private ReviewSQLRequests() {
-
+public class ReviewSqlRequest {
+    private ReviewSqlRequest() {
     }
 
     public static final String REVIEW_SELECT = """
@@ -48,4 +47,25 @@ public class ReviewSQLRequests {
             """;
 
     public static final String DELETE = "DELETE FROM reviews WHERE review_id = ?";
+
+    public static final String FIND_REACTION = """
+            SELECT is_useful
+            FROM review_reactions
+            WHERE review_id = ? AND user_id = ?
+            """;
+
+    public static final String INSERT_REACTION = """
+            INSERT INTO review_reactions (review_id, user_id, is_useful)
+            VALUES (?, ?, ?)
+            """;
+
+    public static final String UPDATE_REACTION = """
+            UPDATE review_reactions SET is_useful = ?
+            WHERE review_id = ? AND user_id = ?
+            """;
+
+    public static final String DELETE_REACTION = """
+            DELETE FROM review_reactions
+            WHERE review_id = ? AND user_id = ? AND is_useful = ?
+            """;
 }

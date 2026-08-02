@@ -18,7 +18,7 @@ public class ReviewDBRepository extends BaseStorage<Review> implements ReviewSto
     @Override
     public Review create(Review review) {
         long id = insert(
-                ReviewSQLRequests.INSERT,
+                ReviewSqlRequest.INSERT,
                 review.getContent(),
                 review.getIsPositive(),
                 review.getUserId(),
@@ -31,54 +31,45 @@ public class ReviewDBRepository extends BaseStorage<Review> implements ReviewSto
 
     @Override
     public Review update(Review review) {
-        update(ReviewSQLRequests.UPDATE, review.getContent(), review.getIsPositive(), review.getReviewId());
+        update(ReviewSqlRequest.UPDATE, review.getContent(), review.getIsPositive(), review.getReviewId());
         return findById(review.getReviewId()).orElseThrow();
     }
 
     @Override
     public boolean delete(long reviewId) {
-        return delete(ReviewSQLRequests.DELETE, reviewId);
+        return delete(ReviewSqlRequest.DELETE, reviewId);
     }
 
     @Override
     public Optional<Review> findById(long reviewId) {
-        return findOne(ReviewSQLRequests.FIND_BY_ID, reviewId);
+        return findOne(ReviewSqlRequest.FIND_BY_ID, reviewId);
     }
 
     @Override
     public List<Review> findAll(long filmId, int count) {
         if (filmId == 0) {
-            return findMany(ReviewSQLRequests.FIND_ALL, count);
+            return findMany(ReviewSqlRequest.FIND_ALL, count);
         } else {
-            return findMany(ReviewSQLRequests.FIND_BY_FILM_ID, filmId, count);
+            return findMany(ReviewSqlRequest.FIND_BY_FILM_ID, filmId, count);
         }
     }
 
     @Override
     public void setReaction(long reviewId, long userId, boolean useful) {
         List<Boolean> existing = jdbc.query(
-                "SELECT is_useful FROM review_reactions WHERE review_id = ? AND user_id = ?",
+                ReviewSqlRequest.FIND_REACTION,
                 (rs, rowNum) -> rs.getBoolean("is_useful"),
                 reviewId,
                 userId);
         if (existing.isEmpty()) {
-            jdbc.update("""
-                    INSERT INTO review_reactions (review_id, user_id, is_useful)
-                    VALUES (?, ?, ?)
-                    """, reviewId, userId, useful);
+            jdbc.update(ReviewSqlRequest.INSERT_REACTION, reviewId, userId, useful);
         } else if (existing.getFirst() != useful) {
-            jdbc.update("""
-                    UPDATE review_reactions SET is_useful = ?
-                    WHERE review_id = ? AND user_id = ?
-                    """, useful, reviewId, userId);
+            jdbc.update(ReviewSqlRequest.UPDATE_REACTION, useful, reviewId, userId);
         }
     }
 
     @Override
     public boolean deleteReaction(long reviewId, long userId, boolean useful) {
-        return jdbc.update("""
-                DELETE FROM review_reactions
-                WHERE review_id = ? AND user_id = ? AND is_useful = ?
-                """, reviewId, userId, useful) > 0;
+        return jdbc.update(ReviewSqlRequest.DELETE_REACTION, reviewId, userId, useful) > 0;
     }
 }
