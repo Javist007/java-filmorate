@@ -61,16 +61,18 @@ public class DirectorService {
     }
 
     public void updateFilmDirectors(long filmId, List<Long> directorIds) {
-        if (directorIds != null) {
-            log.debug("Обновление режиссера: Фильм ID:{}, Режиссер ID:{}", filmId, directorIds);
+        directorStorage.deleteDirectorsFromFilm(filmId);
+
+        if (directorIds != null && !directorIds.isEmpty()) {
+            log.debug("Обновление режиссёров: Фильм ID:{}, Режиссёры ID:{}", filmId, directorIds);
             Set<Long> existingIds = directorStorage.existsDirectorIds(
                     new HashSet<>(directorIds));
             if (existingIds.size() != directorIds.size()) {
-                throw new NotFoundException("Один или несколько режиссеров не найдены");
+                throw new NotFoundException("Один или несколько режиссёров не найдены");
             }
             directorStorage.addDirectorsToFilm(filmId, directorIds);
         } else {
-            log.debug("Не удалось обновить режиссера: Фильм ID:{}", filmId);
+            log.debug("Все режиссёры успешно удалены для фильма ID: {}", filmId);
         }
     }
 

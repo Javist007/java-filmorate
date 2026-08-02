@@ -43,4 +43,8 @@ public class DirectorSQLRequests {
             WHERE fd.film_id IN (:ids)
             ORDER BY fd.film_id, d.id
             """;
+
+    public static final String DELETE_FILM_DIRECTORS = """
+            DELETE FROM film_director WHERE film_id = ?
+            """;
 }

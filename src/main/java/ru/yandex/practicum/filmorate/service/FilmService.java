@@ -9,10 +9,9 @@ import ru.yandex.practicum.filmorate.dto.director.DirectorResponse;
 import ru.yandex.practicum.filmorate.dto.film.CreateFilmRequest;
 import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.dto.film.FilmResponse;
-import ru.yandex.practicum.filmorate.exception.DuplicateException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.EventOperation;
-import ru.yandex.practicum.filmorate.model.EventType;
+import ru.yandex.practicum.filmorate.model.enums.EventOperation;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -68,7 +67,7 @@ public class FilmService {
 
         List<Long> directorIds = request.getDirectors() != null
                 ? request.getDirectors().stream().map(DirectorResponse::getId).distinct().toList()
-                : null;
+                : List.of();
         directorService.updateFilmDirectors(film.getId(), directorIds);
 
         log.info("Добавлен фильм {} с ID {}", newFilm.getName(), newFilm.getId());
@@ -86,7 +85,7 @@ public class FilmService {
 
         List<Long> directorIds = request.getDirectors() != null
                 ? request.getDirectors().stream().map(DirectorResponse::getId).distinct().toList()
-                : null;
+                : List.of();
         directorService.updateFilmDirectors(film.getId(), directorIds);
 
         log.info("Обновлен фильм {} с ID {}", filmUpdate.getName(), filmUpdate.getId());
@@ -112,13 +111,17 @@ public class FilmService {
     public void addLike(Long filmId, Long userId) {
         filmIsExists(filmId);
         userIsExists(userId);
+        feedService.saveEvent(userId, filmId, EventType.LIKE, EventOperation.ADD);
 
-        if (!likeRepository.addLike(filmId, userId)) {
-            throw new DuplicateException("Пользователю уже понравился этот фильм");
+        boolean isAdded = likeRepository.addLike(filmId, userId);
+
+        if (!isAdded) {
+            log.info("Пользователь ID {} уже ставил лайк фильму ID {}", userId, filmId);
+            return;
         }
+
         log.debug("Пользователь ID {} поставил лайк фильму ID {}", userId, filmId);
 
-        feedService.saveEvent(userId, filmId, EventType.LIKE, EventOperation.ADD);
     }
 
     public void removeLike(Long filmId, Long userId) {
