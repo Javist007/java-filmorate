@@ -12,7 +12,7 @@ public class EventSQLRequests {
             SELECT *
             FROM events
             WHERE user_id = :userId
-            ORDER BY event_timestamp ASC
+            ORDER BY event_timestamp ASC, event_id ASC
             """;
 
     public static final String INSERT_EVENT = """

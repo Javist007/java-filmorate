@@ -87,4 +87,10 @@ public class DirectorDBRepository extends BaseStorage<Director> implements Direc
                 });
         return result;
     }
+
+    @Override
+    public void deleteDirectorsFromFilm(long filmId) {
+        log.debug("Удаление из БД всех связей режиссёров для фильма ID: {}", filmId);
+        delete(DirectorSQLRequests.DELETE_FILM_DIRECTORS, filmId);
+    }
 }

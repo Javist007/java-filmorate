@@ -17,7 +17,9 @@ public class UserMapper {
             setId(request.getId());
             setEmail(request.getEmail());
             setLogin(request.getLogin());
-            setName(request.getName());
+            setName(request.getName() == null || request.getName().isBlank()
+                    ? request.getLogin()
+                    : request.getName());
             setBirthday(request.getBirthday());
         }};
     }
@@ -26,7 +28,9 @@ public class UserMapper {
         return new User() {{
             setEmail(request.getEmail());
             setLogin(request.getLogin());
-            setName(request.getName());
+            setName(request.getName() == null || request.getName().isBlank()
+                    ? request.getLogin()
+                    : request.getName());
             setBirthday(request.getBirthday());
         }};
     }
