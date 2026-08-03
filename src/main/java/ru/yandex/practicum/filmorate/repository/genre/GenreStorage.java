@@ -19,12 +19,5 @@ public interface GenreStorage {
 
     void deleteGenresFromFilm(long filmId);
 
-    default void updateFilmGenres(long filmId, List<Long> newGenreIds) {
-        if (newGenreIds != null && !newGenreIds.isEmpty()) {
-            deleteGenresFromFilm(filmId);
-            addGenresToFilm(filmId, newGenreIds);
-        }
-    }
-
     Set<Long> findExistGenreId(Set<Long> id);
 }

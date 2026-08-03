@@ -48,14 +48,14 @@ public class DirectorService {
     }
 
     public DirectorResponse update(UpdateDirectorRequest request) {
-        findById(request.getId());
+        isExists(request.getId());
         log.debug("Обновляем режиссёра ID {}", request.getId());
         Director director = DirectorMapper.toEntity(request);
         return DirectorMapper.toDto(directorStorage.updateDirector(director));
     }
 
     public void delete(long id) {
-        findById(id);
+        isExists(id);
         directorStorage.deleteDirector(id);
         log.info("Удалён режиссёр ID {}", id);
     }
@@ -79,5 +79,12 @@ public class DirectorService {
     public Map<Long, List<Director>> findDirectorsByFilmIds(Set<Long> filmIds) {
         log.debug("Получение списка режиссеров по фильмам: {}", filmIds);
         return directorStorage.findDirectorsByFilmIds(filmIds);
+    }
+
+    public void isExists(long id) {
+        if (directorStorage.findById(id).isEmpty()) {
+            log.warn("Режиссер не найден ID: {}", id);
+            throw new NotFoundException("Режиссер с ID: " + id + " не найден");
+        }
     }
 }

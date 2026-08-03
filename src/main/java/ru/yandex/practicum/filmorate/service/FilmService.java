@@ -17,7 +17,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
 import ru.yandex.practicum.filmorate.repository.like.LikeStorage;
-import ru.yandex.practicum.filmorate.repository.user.UserStorage;
 import ru.yandex.practicum.filmorate.service.mapper.FilmMapper;
 
 import java.util.Collection;
@@ -35,7 +34,7 @@ import java.util.stream.Collectors;
 public class FilmService {
 
     private final FilmStorage filmRepository;
-    private final UserStorage userRepository;
+    private final UserService userService;
     private final LikeStorage likeRepository;
     private final GenreService genreService;
     private final MpaService mpaService;
@@ -75,7 +74,7 @@ public class FilmService {
     }
 
     public FilmResponse update(UpdateFilmRequest request) {
-        findById(request.getId());
+        isExists(request.getId());
         Film film = FilmMapper.toEntity(request);
         Film filmUpdate = filmRepository.update(film);
         List<Long> genreIds = request.getGenres() != null
@@ -93,7 +92,7 @@ public class FilmService {
     }
 
     public void delete(long id) {
-        findById(id);
+        isExists(id);
         filmRepository.delete(id);
         log.info("Удален фильм ID {}", id);
     }
@@ -109,8 +108,8 @@ public class FilmService {
     }
 
     public void addLike(Long filmId, Long userId) {
-        filmIsExists(filmId);
-        userIsExists(userId);
+        isExists(filmId);
+        userService.isExists(userId);
         feedService.saveEvent(userId, filmId, EventType.LIKE, EventOperation.ADD);
 
         boolean isAdded = likeRepository.addLike(filmId, userId);
@@ -125,8 +124,8 @@ public class FilmService {
     }
 
     public void removeLike(Long filmId, Long userId) {
-        filmIsExists(filmId);
-        userIsExists(userId);
+        isExists(filmId);
+        userService.isExists(userId);
 
         if (!likeRepository.deleteLike(filmId, userId)) {
             throw new NotFoundException("Данного лайка не существует");
@@ -137,9 +136,25 @@ public class FilmService {
     }
 
     public List<FilmResponse> findDirectorFilms(long directorId, String sortType) {
-        directorService.findById(directorId);
+        directorService.isExists(directorId);
         List<Film> films = filmRepository.findDirectorFilms(directorId, sortType);
         log.debug("Found {} films", films.size());
+        return buildFilmResponses(films);
+    }
+
+    public List<FilmResponse> getCommonFilms(Long userId, Long friendId) {
+        userService.isExists(userId);
+        userService.isExists(friendId);
+        log.info("Запрос списка общих фильмов пользователей ID: {} | {}", userId, friendId);
+
+        List<Film> commonFilms = filmRepository.getCommonFilms(userId, friendId);
+        return buildFilmResponses(commonFilms);
+    }
+
+    public List<FilmResponse> search(String query, Set<String> by) {
+        log.debug("Поиск фильмов, запрос: '{}', фильтры: '{}'", query, by);
+        Set<String> collect = by.stream().map(String::toLowerCase).collect(Collectors.toSet());
+        List<Film> films = filmRepository.search(query, collect);
         return buildFilmResponses(films);
     }
 
@@ -167,29 +182,10 @@ public class FilmService {
         return buildFilmResponses(List.of(film)).getFirst();
     }
 
-    private void filmIsExists(Long filmId) {
-        filmRepository.findById(filmId)
-                .orElseThrow(() -> new NotFoundException("Фильм ID: " + filmId + " не найден"));
-    }
-
-    private void userIsExists(Long userId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь ID: " + userId + " не найден"));
-    }
-
-    public List<FilmResponse> getCommonFilms(Long userId, Long friendId) {
-        userIsExists(userId);
-        userIsExists(friendId);
-        log.info("Запрос списка общих фильмов пользователей ID: {} | {}", userId, friendId);
-
-        List<Film> commonFilms = filmRepository.getCommonFilms(userId, friendId);
-        return buildFilmResponses(commonFilms);
-    }
-
-    public List<FilmResponse> search(String query, Set<String> by) {
-        log.debug("Поиск фильмов, запрос: '{}', фильтры: '{}'", query, by);
-        Set<String> collect = by.stream().map(String::toLowerCase).collect(Collectors.toSet());
-        List<Film> films = filmRepository.search(query, collect);
-        return buildFilmResponses(films);
+    public void isExists(Long filmId) {
+        if (filmRepository.findById(filmId).isEmpty()) {
+            log.warn("Фильм не найден ID: {}", filmId);
+            throw new NotFoundException("Фильм ID: " + filmId + " не найден");
+        }
     }
 }

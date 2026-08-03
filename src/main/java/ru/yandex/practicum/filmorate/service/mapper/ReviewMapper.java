@@ -6,6 +6,9 @@ import ru.yandex.practicum.filmorate.dto.review.ReviewResponse;
 import ru.yandex.practicum.filmorate.dto.review.UpdateReviewRequest;
 import ru.yandex.practicum.filmorate.model.Review;
 
+/**
+ * Вспомогательный класс для конвертации Review -> DTO.
+ */
 @UtilityClass
 public class ReviewMapper {
     public Review toEntity(CreateReviewRequest request) {

@@ -24,7 +24,7 @@ public class RecommendationService {
     public List<FilmResponse> findRecommendations(Long userId) {
         log.debug("Поиск рекомендованных фильмов для пользователя ID: {}", userId);
 
-        userService.findById(userId);
+        userService.isExists(userId);
 
         List<Film> recommendedFilms = recommendationStorage.findRecommendedFilms(userId);
         if (recommendedFilms.isEmpty()) {

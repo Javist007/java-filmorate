@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.model.Event;
 /**
  * Вспомогательный класс для конвертации Event -> DTO.
  */
-
 @UtilityClass
 public class EventMapper {
 

@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.repository.events;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.repository.BaseStorage;
@@ -15,11 +14,8 @@ import java.util.Map;
 @Slf4j
 public class EventDBRepository extends BaseStorage<Event> implements EventStorage {
 
-    NamedParameterJdbcTemplate namedJdbc;
-
     public EventDBRepository(JdbcTemplate jdbc, RowMapper<Event> mapper) {
         super(jdbc, mapper);
-        this.namedJdbc = new NamedParameterJdbcTemplate(jdbc);
     }
 
     @Override

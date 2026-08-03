@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.review.CreateReviewRequest;
@@ -8,11 +9,8 @@ import ru.yandex.practicum.filmorate.dto.review.UpdateReviewRequest;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.enums.EventType;
 import ru.yandex.practicum.filmorate.model.enums.EventOperation;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ReviewsNotFoundException;
-import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
 import ru.yandex.practicum.filmorate.repository.review.ReviewStorage;
-import ru.yandex.practicum.filmorate.repository.user.UserStorage;
 import ru.yandex.practicum.filmorate.service.mapper.ReviewMapper;
 
 import java.util.List;
@@ -21,26 +19,20 @@ import java.util.List;
  * Бизнес‑слой для отзывов.
  */
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class ReviewService {
     private final ReviewStorage storage;
-    private final UserStorage userStorage;
-    private final FilmStorage filmStorage;
+    private final UserService userService;
+    private final FilmService filmService;
     private final FeedService feedService;
     private static final long NO_FILM_FILTER_ID = 0L;
-
-    public ReviewService(ReviewStorage storage, UserStorage userStorage, FilmStorage filmStorage, FeedService feedService) {
-        this.storage = storage;
-        this.userStorage = userStorage;
-        this.filmStorage = filmStorage;
-        this.feedService = feedService;
-    }
 
     public ReviewResponse create(CreateReviewRequest request) {
         log.debug("Создаём отзыв на фильм ID: {} от пользователя ID: {}", request.getFilmId(), request.getUserId());
         Review review = ReviewMapper.toEntity(request);
-        requireUser(review.getUserId());
-        requireFilm(review.getFilmId());
+        userService.isExists(review.getUserId());
+        filmService.isExists(review.getFilmId());
 
         Review createdReview = storage.create(review);
 
@@ -81,7 +73,7 @@ public class ReviewService {
     public List<ReviewResponse> findAll(Long filmId, int count) {
         log.debug("Получаем список отзывов (фильтр по фильму ID: {}, лимит: {})", filmId, count);
         if (filmId != null) {
-            requireFilm(filmId);
+            filmService.isExists(filmId);
         }
 
         long targetFilmId = (filmId == null) ? NO_FILM_FILTER_ID : filmId;
@@ -93,7 +85,7 @@ public class ReviewService {
 
     public ReviewResponse addLike(long reviewId, long userId) {
         requireReview(reviewId);
-        requireUser(userId);
+        userService.isExists(userId);
         log.debug("Добавление лайка к отзыву ID: {} от пользователя ID: {}", reviewId, userId);
         storage.setReaction(reviewId, userId, true);
         return ReviewMapper.toDto(requireReview(reviewId));
@@ -101,7 +93,7 @@ public class ReviewService {
 
     public ReviewResponse addDislike(long reviewId, long userId) {
         requireReview(reviewId);
-        requireUser(userId);
+        userService.isExists(userId);
         log.debug("Добавление дизлайка к отзыву ID: {} от пользователя ID: {}", reviewId, userId);
         storage.setReaction(reviewId, userId, false);
         return ReviewMapper.toDto(requireReview(reviewId));
@@ -119,21 +111,9 @@ public class ReviewService {
 
     private ReviewResponse removeReaction(long reviewId, long userId, boolean useful) {
         requireReview(reviewId);
-        requireUser(userId);
+        userService.isExists(userId);
         storage.deleteReaction(reviewId, userId, useful);
         return ReviewMapper.toDto(requireReview(reviewId));
-    }
-
-    private void requireUser(long userId) {
-        log.debug("Проверка существования пользователя ID: {}", userId);
-        userStorage.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь с ID: " + userId + " не найден"));
-    }
-
-    private void requireFilm(long filmId) {
-        log.debug("Проверка существования фильма ID: {}", filmId);
-        filmStorage.findById(filmId)
-                .orElseThrow(() -> new NotFoundException("Фильм с ID: " + filmId + " не найден"));
     }
 
     private Review requireReview(long reviewId) {
