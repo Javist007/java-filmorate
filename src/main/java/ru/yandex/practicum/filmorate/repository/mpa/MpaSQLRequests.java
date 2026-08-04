@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MpaSQLRequests {
 
-    public static final String FIND_ALL_MPA = "SELECT * FROM ratings";
+    public static final String FIND_ALL_MPA = "SELECT * FROM ratings ORDER BY id ASC";
 
     public static final String FIND_MPA_BY_ID = "SELECT * FROM ratings where id = ?";
 }

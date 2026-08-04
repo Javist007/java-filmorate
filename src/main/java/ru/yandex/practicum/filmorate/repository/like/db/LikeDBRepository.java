@@ -34,14 +34,19 @@ public class LikeDBRepository extends BaseStorage<Like> implements LikeStorage {
 
     @Override
     public boolean addLike(Long filmId, Long userId) {
-        int affectedRows = jdbc.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(LikeSQLRequests.INSERT_LIKE);
-            ps.setObject(1, filmId);
-            ps.setObject(2, userId);
-            return ps;
-        });
-        log.debug("Пользователь ID: {} - поставил лайк фильму ID: {}", userId, filmId);
-        return affectedRows > 0;
+        try {
+            int affectedRows = jdbc.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(LikeSQLRequests.INSERT_LIKE);
+                ps.setObject(1, filmId);
+                ps.setObject(2, userId);
+                return ps;
+            });
+            log.debug("Пользователь ID: {} - поставил лайк фильму ID: {}", userId, filmId);
+            return affectedRows > 0;
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            log.warn("Не удалось добавить лайк (дубликат): фильм ID {}, пользователь ID {}", filmId, userId);
+            return false;
+        }
     }
 
     @Override

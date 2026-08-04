@@ -13,31 +13,38 @@ import ru.yandex.practicum.filmorate.model.User;
 public class UserMapper {
 
     public User toEntity(UpdateUserRequest request) {
-        return new User() {{
-            setId(request.getId());
-            setEmail(request.getEmail());
-            setLogin(request.getLogin());
-            setName(request.getName());
-            setBirthday(request.getBirthday());
-        }};
+        if (request == null) return null;
+
+        User user = new User();
+        user.setId(request.getId());
+        fillCommonFields(user, request.getEmail(), request.getLogin(), request.getName(), request.getBirthday());
+        return user;
     }
 
     public User toEntity(CreateUserRequest request) {
-        return new User() {{
-            setEmail(request.getEmail());
-            setLogin(request.getLogin());
-            setName(request.getName());
-            setBirthday(request.getBirthday());
-        }};
+        if (request == null) return null;
+
+        User user = new User();
+        fillCommonFields(user, request.getEmail(), request.getLogin(), request.getName(), request.getBirthday());
+        return user;
     }
 
     public UserResponse toDto(User entity) {
-        return new UserResponse() {{
-            setId(entity.getId());
-            setEmail(entity.getEmail());
-            setLogin(entity.getLogin());
-            setName(entity.getName());
-            setBirthday(entity.getBirthday());
-        }};
+        if (entity == null) return null;
+
+        UserResponse dto = new UserResponse();
+        dto.setId(entity.getId());
+        dto.setEmail(entity.getEmail());
+        dto.setLogin(entity.getLogin());
+        dto.setName(entity.getName());
+        dto.setBirthday(entity.getBirthday());
+        return dto;
+    }
+
+    private void fillCommonFields(User user, String email, String login, String name, java.time.LocalDate birthday) {
+        user.setEmail(email);
+        user.setLogin(login);
+        user.setName(name == null || name.isBlank() ? login : name);
+        user.setBirthday(birthday);
     }
 }

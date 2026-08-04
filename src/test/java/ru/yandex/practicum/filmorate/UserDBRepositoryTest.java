@@ -27,7 +27,7 @@ class UserDBRepositoryTest {
 
     @BeforeEach
     void clean() {
-        testEntity.cleanTables("users");
+        testEntity.cleanTables("users", "film_director");
     }
 
     @Test

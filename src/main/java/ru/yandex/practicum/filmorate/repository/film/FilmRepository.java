@@ -60,8 +60,12 @@ public class FilmRepository implements FilmStorage {
     }
 
     @Override
-    public List<Film> getPopular(Integer count) {
+    public List<Film> getPopular(Integer count, Long genreId, Integer year) {
+        log.debug("Получение популярных фильмов из памяти с фильтрами: count={}, genreId={}, year={}", count, genreId, year);
+
         return filmStorage.values().stream()
+                .filter(film -> year == null || (film.getReleaseDate() != null &&
+                        film.getReleaseDate().getYear() == year))
                 .sorted((f1, f2) -> {
                     int likes1 = likeStorage.getUserIds(f1.getId()).size();
                     int likes2 = likeStorage.getUserIds(f2.getId()).size();
@@ -69,5 +73,31 @@ public class FilmRepository implements FilmStorage {
                 })
                 .limit(count)
                 .toList();
+    }
+
+    @Override
+    public List<Film> findDirectorFilms(long directorId, String sortType) {
+        throw new UnsupportedOperationException("Данный метод больше не поддерживается");
+
+    }
+
+    @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        log.debug("Получение общих фильмов из памяти для пользователей {} и {}", userId, friendId);
+        return filmStorage.values().stream()
+                .filter(film -> likeStorage.getUserIds(film.getId()).contains(userId)
+                        && likeStorage.getUserIds(film.getId()).contains(friendId))
+                .sorted((f1, f2) -> {
+                    int likes1 = likeStorage.getUserIds(f1.getId()).size();
+                    int likes2 = likeStorage.getUserIds(f2.getId()).size();
+                    return Integer.compare(likes2, likes1);
+                })
+                .toList();
+    }
+
+    @Override
+    @Deprecated
+    public List<Film> search(String query, Set<String> by) {
+        return List.of();
     }
 }

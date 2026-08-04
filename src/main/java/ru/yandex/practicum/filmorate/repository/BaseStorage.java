@@ -1,9 +1,9 @@
 package ru.yandex.practicum.filmorate.repository;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
 
@@ -12,11 +12,18 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
-@RequiredArgsConstructor
+
 public class BaseStorage<T> {
 
     protected final JdbcTemplate jdbc;
     protected final RowMapper<T> mapper;
+    protected final NamedParameterJdbcTemplate namedJdbc;
+
+    public BaseStorage(JdbcTemplate jdbc, RowMapper<T> mapper) {
+        this.jdbc = jdbc;
+        this.mapper = mapper;
+        this.namedJdbc = new NamedParameterJdbcTemplate(jdbc);
+    }
 
     protected Optional<T> findOne(String query, Object... params) {
         try {

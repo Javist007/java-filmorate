@@ -29,7 +29,7 @@ class FilmDBRepositoryTest {
 
     @BeforeEach
     void clean() {
-        testEntity.cleanTables("film_genre", "likes", "films", "users");
+        testEntity.cleanTables("film_genre", "likes", "films", "users", "film_director");
     }
 
     @Test
@@ -90,7 +90,7 @@ class FilmDBRepositoryTest {
         testEntity.insertFilm("A", LocalDate.of(2000, 1, 1), 120, 1);
         testEntity.insertFilm("B", LocalDate.of(2001, 2, 2), 90, 2);
 
-        List<Film> popular = filmRepo.getPopular(10);
+        List<Film> popular = filmRepo.getPopular(10, null, null);
         assertThat(popular).hasSize(2);
     }
 
@@ -106,7 +106,7 @@ class FilmDBRepositoryTest {
         testEntity.addLikes(b, List.of(u1, u2, u3));
         testEntity.addLikes(a, List.of(u1, u2));
 
-        List<Film> top = filmRepo.getPopular(5);
+        List<Film> top = filmRepo.getPopular(5, null, null);
         assertThat(top).extracting(Film::getId)
                 .containsExactly(b, a);
     }

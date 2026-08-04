@@ -34,15 +34,19 @@ public class GenreService {
     }
 
     public void updateFilmGenres(long filmId, List<Long> genreIds) {
-        if (genreIds != null) {
-            log.debug("Обновление жанра фильма - фильм ID: {}, Жанр ID: {}", filmId, genreIds);
-            Set<Long> existingIds = genreStorage.findExistGenreId(
-                    new HashSet<>(genreIds));
-            if (existingIds.size() != genreIds.size()) {
-                throw new NotFoundException("Есть отсутствующие жанры");
-            }
+        genreStorage.deleteGenresFromFilm(filmId);
+
+        if (genreIds == null || genreIds.isEmpty()) {
+            return;
         }
-        genreStorage.updateFilmGenres(filmId, genreIds);
+
+        log.debug("Обновление жанра фильма - фильм ID: {}, Жанр ID: {}", filmId, genreIds);
+        Set<Long> existingIds = genreStorage.findExistGenreId(new HashSet<>(genreIds));
+        if (existingIds.size() != genreIds.size()) {
+            throw new NotFoundException("Есть отсутствующие жанры");
+        }
+
+        genreStorage.addGenresToFilm(filmId, genreIds);
     }
 
     public Map<Long, List<Genre>> findGenresByFilmIds(Set<Long> filmIds) {

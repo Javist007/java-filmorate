@@ -37,4 +37,3 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse("DUPLICATE_ERROR", ex.getMessage()));
     }
 }
-

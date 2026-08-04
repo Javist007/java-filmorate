@@ -8,6 +8,8 @@ import ru.yandex.practicum.filmorate.dto.user.CreateUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserResponse;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.enums.EventOperation;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.friends.FriendStorage;
 import ru.yandex.practicum.filmorate.repository.user.UserStorage;
@@ -26,6 +28,7 @@ public class UserService {
 
     private final UserStorage repository;
     private final FriendStorage friendStorage;
+    private final FeedService feedService;
 
     public Collection<UserResponse> findAll() {
         log.info("Получаем список всех пользователей");
@@ -48,10 +51,7 @@ public class UserService {
     }
 
     public UserResponse update(UpdateUserRequest request) {
-        if (repository.findById(request.getId()).isEmpty()) {
-            log.warn("Пользователь не найден ID: {}", request.getId());
-            throw new NotFoundException("Пользователь с ID: " + request.getId() + " не найден");
-        }
+        isExists(request.getId());
         User user = UserMapper.toEntity(request);
         User updateUser = repository.updateUser(user);
         log.debug("Пользователь обновлен ID: {}", updateUser.getId());
@@ -59,7 +59,7 @@ public class UserService {
     }
 
     public void delete(long id) {
-        findById(id);
+        isExists(id);
         repository.deleteUser(id);
         log.debug("Пользователь удален ID: {}", id);
     }
@@ -69,25 +69,29 @@ public class UserService {
             log.error("Попытка пользователя подружиться с самим собой. ID: {}", userId);
             throw new NotFoundException("Пользователь не может подружиться сам с собой");
         }
-        findById(userId);
-        findById(friendId);
+        isExists(userId);
+        isExists(friendId);
 
         if (friendStorage.addFriends(userId, friendId)) {
             log.info("Пользователь {} добавил в друзья пользователя {}", userId, friendId);
+
+            feedService.saveEvent(userId, friendId, EventType.FRIEND, EventOperation.ADD);
         }
     }
 
     public void removeFriend(Long userId, Long friendId) {
-        findById(userId);
-        findById(friendId);
+        isExists(userId);
+        isExists(friendId);
 
         if (friendStorage.deleteFriends(userId, friendId)) {
             log.info("Пользователь {} удалил из друзей пользователем {}", userId, friendId);
+
+            feedService.saveEvent(userId, friendId, EventType.FRIEND, EventOperation.REMOVE);
         }
     }
 
     public List<UserResponse> getFriends(Long userId) {
-        findById(userId);
+        isExists(userId);
         log.info("Запрос списка друзей пользователя ID: {}", userId);
         Set<Long> friendIds = friendStorage.getFriends(userId);
         return repository.findAllByIds(friendIds).stream()
@@ -96,12 +100,19 @@ public class UserService {
     }
 
     public List<UserResponse> getCommonFriends(Long userId, Long otherId) {
-        findById(userId);
-        findById(otherId);
+        isExists(userId);
+        isExists(otherId);
         log.info("Запрос списка общих друзей пользователей ID: {} | {}", userId, otherId);
         Set<Long> commonIds = friendStorage.getCommonFriends(userId, otherId);
         return repository.findAllByIds(commonIds).stream()
                 .map(UserMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    public void isExists(long id) {
+        if (repository.findById(id).isEmpty()) {
+            log.warn("Пользователь не найден ID: {}", id);
+            throw new NotFoundException("Пользователь с ID: " + id + " не найден");
+        }
     }
 }

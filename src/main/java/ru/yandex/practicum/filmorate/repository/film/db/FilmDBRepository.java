@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 @Slf4j
@@ -69,8 +70,39 @@ public class FilmDBRepository extends BaseStorage<Film> implements FilmStorage {
     }
 
     @Override
-    public List<Film> getPopular(Integer count) {
-        log.debug("Возвращаем топ {} популярных фильмов", count);
-        return findMany(FilmSQLRequests.FIND_POPULAR_FILMS, count);
+    public List<Film> getPopular(Integer count, Long genreId, Integer year) {
+        log.debug("Возвращаем топ {} популярных фильмов с фильтрами: genreId={}, year={}", count, genreId, year);
+        return findMany(FilmSQLRequests.FIND_POPULAR_FILMS, genreId, genreId, year, year, count);
+    }
+
+    @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        log.debug("Выборка общих фильмов из БД для пользователей: {} и {}", userId, friendId);
+        return findMany(FilmSQLRequests.FIND_COMMON_FILMS, userId, friendId);
+    }
+
+    @Override
+    public List<Film> findDirectorFilms(long directorId, String sortType) {
+        log.debug("Получение фильмов по режиссеру ID:{}, отсортированных по - {}", directorId, sortType);
+        return findMany(sortType.equalsIgnoreCase("likes")
+                ? FilmSQLRequests.FIND_FILMS_LIKES_SORT
+                : FilmSQLRequests.FIND_FILMS_YEAR_SORT, directorId);
+    }
+
+    @Override
+    public List<Film> search(String query, Set<String> by) {
+        log.debug("Поиск фильмов в базе, запрос: '{}', фильтры: '{}'", query, by);
+        String searchQuery = query.toLowerCase().trim();
+
+        boolean title = by.contains("title");
+        boolean director = by.contains("director");
+
+        if (title && director) {
+            return findMany(FilmSQLRequests.SEARCH_BOTH, searchQuery, searchQuery);
+        } else if (director) {
+            return findMany(FilmSQLRequests.SEARCH_DIRECTOR, searchQuery);
+        } else {
+            return findMany(FilmSQLRequests.SEARCH_TITLE, searchQuery);
+        }
     }
 }
